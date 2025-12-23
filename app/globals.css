@@ -165,11 +165,6 @@ body::before {
   transition: opacity 0.3s ease;
 }
 
-.container:hover::before {
-  opacity: 0.6;
-  animation: shimmer 3s linear infinite;
-}
-
 h1 {
   font-size: clamp(28px, 6vw, 36px);
   margin-bottom: 12px;

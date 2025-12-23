@@ -166,6 +166,10 @@ export default function Home() {
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState<AnswerResult[]>([]);
 
+  // AI evaluation state
+  const [aiEvaluation, setAiEvaluation] = useState<string>("");
+  const [loadingEvaluation, setLoadingEvaluation] = useState<boolean>(false);
+
   // Date question state
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
@@ -200,11 +204,48 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch AI evaluation when screen changes to ai-evaluation
+  useEffect(() => {
+    if (screen === "ai-evaluation" && !aiEvaluation && !loadingEvaluation) {
+      const fetchEvaluation = async () => {
+        setLoadingEvaluation(true);
+        try {
+          const response = await fetch('/api/evaluate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              answers,
+              score,
+              totalQuestions: questions.length,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setAiEvaluation(data.evaluation);
+          } else {
+            setAiEvaluation("Die KI konnte keine Auswertung erstellen. Aber ihr habt es großartig gemacht! 🎄");
+          }
+        } catch (error) {
+          setAiEvaluation("Die KI hat gerade Pause. Aber ihr wart super! 🎅");
+        } finally {
+          setLoadingEvaluation(false);
+        }
+      };
+
+      fetchEvaluation();
+    }
+  }, [screen, aiEvaluation, loadingEvaluation, answers, score]);
+
   const resetQuiz = () => {
     setScreen("start");
     setCurrentQuestionIndex(0);
     setScore(0);
     setAnswers([]);
+    setAiEvaluation("");
+    setLoadingEvaluation(false);
     setSelectedDay(null);
     setSelectedMonth(null);
     setSelectedYear(null);
@@ -464,45 +505,11 @@ export default function Home() {
 
   // AI Evaluation screen
   if (screen === "ai-evaluation") {
-    const [aiEvaluation, setAiEvaluation] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-
-    useEffect(() => {
-      const fetchEvaluation = async () => {
-        try {
-          const response = await fetch('/api/evaluate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              answers,
-              score,
-              totalQuestions: questions.length,
-            }),
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setAiEvaluation(data.evaluation);
-          } else {
-            setAiEvaluation("Die KI konnte keine Auswertung erstellen. Aber ihr habt es großartig gemacht! 🎄");
-          }
-        } catch (error) {
-          setAiEvaluation("Die KI hat gerade Pause. Aber ihr wart super! 🎅");
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchEvaluation();
-    }, []);
-
     return (
       <div className="container">
         <h2>🤖 KI Auswertung</h2>
         <div className="ai-evaluation">
-          {loading ? (
+          {loadingEvaluation ? (
             <p style={{ textAlign: 'center', fontSize: '18px' }}>
               Die KI analysiert eure Antworten... 🤔
             </p>
@@ -513,7 +520,7 @@ export default function Home() {
         <button
           className="btn-primary"
           onClick={() => setScreen("results")}
-          disabled={loading}
+          disabled={loadingEvaluation}
         >
           Ergebnis anzeigen
         </button>
