@@ -35,121 +35,225 @@ type PinQuestion = {
 
 type Question = MCQuestion | DateQuestion | PinQuestion;
 
-// All 12 questions
-const questions: Question[] = [
-  {
-    id: 1,
-    type: "mc",
-    category: "History",
-    question:
-      "In welchem Schloss wurde der Österreichische Staatsvertrag 1955 unterzeichnet?",
-    options: ["Schönbrunn", "Belvedere", "Hofburg", "Mirabell"],
-    correctIndex: 1,
-  },
-  {
-    id: 2,
-    type: "mc",
-    category: "Music",
-    question: "Welcher Song von Falco erreichte Platz 1 in den USA?",
-    options: ["Rock Me Amadeus", "Vienna Calling", "Jeanny", "Der Kommissar"],
-    correctIndex: 0,
-  },
-  {
-    id: 3,
-    type: "mc",
-    category: "Music",
-    question: "Die Operette 'Die Fledermaus' wurde komponiert von …",
-    options: ["Mozart", "Johann Strauss Sohn", "Haydn", "Schubert"],
-    correctIndex: 1,
-  },
-  {
-    id: 4,
-    type: "mc",
-    category: "History",
-    question: "Österreich ist der EU beigetreten im Jahr …",
-    options: ["1989", "1995", "2002", "2007"],
-    correctIndex: 1,
-  },
-  {
-    id: 5,
-    type: "mc",
-    category: "Music",
-    question: "Conchita Wurst gewann den Eurovision Song Contest mit …",
-    options: ["Rise Like a Phoenix", "Heroes", "Euphoria", "Waterloo"],
-    correctIndex: 0,
-  },
-  {
-    id: 6,
-    type: "mc",
-    category: "Architecture",
-    question: "Das Hundertwasserhaus ist bekannt für …",
-    options: [
-      "strenge Symmetrie",
-      "bunte, organische Formen",
-      "Glasfassaden",
-      "Beton-Minimalismus",
-    ],
-    correctIndex: 1,
-  },
-  {
-    id: 7,
-    type: "mc",
-    category: "Music",
-    question: "Das berühmte Neujahrskonzert findet statt im …",
-    options: ["Musikverein", "Konzerthaus", "Staatsoper", "Burgtheater"],
-    correctIndex: 0,
-  },
-  {
-    id: 8,
-    type: "mc",
-    category: "Fun",
-    question: "Mozart wurde geboren in …",
-    options: ["Wien", "Salzburg", "Graz", "Innsbruck"],
-    correctIndex: 1,
-  },
-  {
-    id: 9,
-    type: "mc",
-    category: "Fun",
-    question: "Die Donau fließt durch …",
-    options: ["Graz", "Wien", "Klagenfurt", "Bregenz"],
-    correctIndex: 1,
-  },
-  {
-    id: 10,
-    type: "mc",
-    category: "Music",
-    question: "Die österreichische Band STS sang auf …",
-    options: ["Hochdeutsch", "Steirisch", "Wienerisch", "Tirolerisch"],
-    correctIndex: 1,
-  },
-  {
-    id: 11,
-    type: "date",
-    category: "History",
-    question:
-      "Wann wurde der Österreichische Staatsvertrag unterzeichnet? (Datum auswählen)",
-    correctISO: "1955-05-15",
-    yearRange: { from: 1950, to: 1960 },
-  },
-  {
-    id: 12,
-    type: "pin",
-    category: "Austria",
-    question: "Tippe auf die Karte: Wo liegt das Dorf Fucking (jetzt Fugging)?",
-    mapUrl: "/austria-map.png",
-    mapWidth: 960,
-    mapHeight: 536,
-    correctPoint: { x: 420, y: 185 },
-    threshold: 80,
-  },
-];
+type Family = "Matis Family" | "Wallner Family";
+
+const getQuestions = (family: Family): Question[] => {
+  const q1: PinQuestion = family === "Matis Family"
+    ? {
+        id: 1,
+        type: "pin",
+        category: "Austria",
+        question: "Tippe auf die Karte: Wo liegt ungefähr Neudörfl?",
+        mapUrl: "/austria-map.png",
+        mapWidth: 960,
+        mapHeight: 536,
+        correctPoint: { x: 870, y: 310 },
+        threshold: 90,
+      }
+    : {
+        id: 1,
+        type: "pin",
+        category: "Austria",
+        question: "Tippe auf die Karte: Wo liegt ungefähr Salzburg – und noch genauer: Anif?",
+        mapUrl: "/austria-map.png",
+        mapWidth: 960,
+        mapHeight: 536,
+        correctPoint: { x: 210, y: 200 },
+        threshold: 100,
+      };
+
+  return [
+    q1,
+    {
+      id: 2,
+      type: "mc",
+      category: "Fun",
+      question: "Woher stammt die Idee des Wiener Schnitzels ursprünglich?",
+      options: ["Wien", "Ungarn", "Italien (Mailand)", "Bayern"],
+      correctIndex: 2,
+    },
+    {
+      id: 3,
+      type: "mc",
+      category: "Fun",
+      question: "Warum war Kaiserin Sisi oft monatelang unterwegs?",
+      options: [
+        "Sie liebte das Reisen und hasste den Wiener Hof",
+        "Sie war schwer krank",
+        "Sie führte politische Missionen",
+        "Sie lebte im Exil",
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 4,
+      type: "pin",
+      category: "Austria",
+      question: "Tippe auf die Karte: Wo liegt ungefähr Hallstatt?",
+      mapUrl: "/austria-map.png",
+      mapWidth: 960,
+      mapHeight: 536,
+      correctPoint: { x: 250, y: 230 },
+      threshold: 90,
+    },
+    {
+      id: 5,
+      type: "mc",
+      category: "Fun",
+      question: "Warum ist Hallstatt international so bekannt?",
+      options: [
+        "Wegen der Olympischen Spiele",
+        "Wegen einer vollständigen Kopie in China",
+        "Wegen Goldminen",
+        "Wegen eines UNO-Sitzes",
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 6,
+      type: "mc",
+      category: "Fun",
+      question: "Warum heißt der Ort früher 'Fucking' heute anders?",
+      options: [
+        "Wegen EU-Vorschriften",
+        "Wegen internationaler Witze und Ortstafeldiebstähle",
+        "Wegen politischer Proteste",
+        "Wegen eines Übersetzungsfehlers",
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 7,
+      type: "date",
+      category: "History",
+      question: "Wann wurde der Österreichische Staatsvertrag unterzeichnet? (Datum auswählen)",
+      correctISO: "1955-05-15",
+      yearRange: { from: 1950, to: 1960 },
+    },
+    {
+      id: 8,
+      type: "mc",
+      category: "Fun",
+      question: "Was ist bei diesem Quiz wirklich wichtig?",
+      options: [
+        "Alle Antworten richtig",
+        "Diskussionen",
+        "Das Geschenk am Ende",
+        "Rechthaben",
+      ],
+      correctIndex: 2,
+    },
+    {
+      id: 9,
+      type: "mc",
+      category: "Fun",
+      question: "Wer ist der ultimative Quizmaster?",
+      options: ["Gregor", "Armin Assinger", "Günther Jauch", "Steve Harvey"],
+      correctIndex: 3,
+    },
+    {
+      id: 10,
+      type: "mc",
+      category: "History",
+      question: "In welchem Schloss wurde der Österreichische Staatsvertrag 1955 unterzeichnet?",
+      options: ["Schönbrunn", "Belvedere", "Hofburg", "Mirabell"],
+      correctIndex: 1,
+    },
+    {
+      id: 11,
+      type: "mc",
+      category: "Music",
+      question: "Welcher Song von Falco erreichte Platz 1 in den USA?",
+      options: ["Rock Me Amadeus", "Vienna Calling", "Jeanny", "Der Kommissar"],
+      correctIndex: 0,
+    },
+    {
+      id: 12,
+      type: "mc",
+      category: "Music",
+      question: "Die Operette 'Die Fledermaus' wurde komponiert von …",
+      options: ["Mozart", "Johann Strauss Sohn", "Haydn", "Schubert"],
+      correctIndex: 1,
+    },
+    {
+      id: 13,
+      type: "mc",
+      category: "History",
+      question: "Österreich ist der EU beigetreten im Jahr …",
+      options: ["1989", "1995", "2002", "2007"],
+      correctIndex: 1,
+    },
+    {
+      id: 14,
+      type: "mc",
+      category: "Music",
+      question: "Conchita Wurst gewann den Eurovision Song Contest mit …",
+      options: ["Rise Like a Phoenix", "Heroes", "Euphoria", "Waterloo"],
+      correctIndex: 0,
+    },
+    {
+      id: 15,
+      type: "mc",
+      category: "Architecture",
+      question: "Das Hundertwasserhaus ist bekannt für …",
+      options: [
+        "strenge Symmetrie",
+        "bunte, organische Formen",
+        "Glasfassaden",
+        "Beton-Minimalismus",
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 16,
+      type: "mc",
+      category: "Music",
+      question: "Das berühmte Neujahrskonzert findet statt im …",
+      options: ["Musikverein", "Konzerthaus", "Staatsoper", "Burgtheater"],
+      correctIndex: 0,
+    },
+    {
+      id: 17,
+      type: "mc",
+      category: "Fun",
+      question: "Mozart wurde geboren in …",
+      options: ["Wien", "Salzburg", "Graz", "Innsbruck"],
+      correctIndex: 1,
+    },
+    {
+      id: 18,
+      type: "mc",
+      category: "Fun",
+      question: "Die Donau fließt durch …",
+      options: ["Graz", "Wien", "Klagenfurt", "Bregenz"],
+      correctIndex: 1,
+    },
+    {
+      id: 19,
+      type: "mc",
+      category: "Music",
+      question: "Die österreichische Band STS sang auf …",
+      options: ["Hochdeutsch", "Steirisch", "Wienerisch", "Tirolerisch"],
+      correctIndex: 1,
+    },
+    {
+      id: 20,
+      type: "pin",
+      category: "Austria",
+      question: "Tippe auf die Karte: Wo liegt das Dorf Fucking (jetzt Fugging)?",
+      mapUrl: "/austria-map.png",
+      mapWidth: 960,
+      mapHeight: 536,
+      correctPoint: { x: 420, y: 185 },
+      threshold: 80,
+    },
+  ];
+};
 
 type Screen =
   | "start"
   | "quiz"
   | "ai-evaluation"
-  | "results"
   | "prize-unlocked"
   | "prize-reveal";
 
@@ -162,6 +266,7 @@ type AnswerResult = {
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("start");
+  const [family, setFamily] = useState<Family | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState<AnswerResult[]>([]);
@@ -169,6 +274,7 @@ export default function Home() {
   // AI evaluation state
   const [aiEvaluation, setAiEvaluation] = useState<string>("");
   const [loadingEvaluation, setLoadingEvaluation] = useState<boolean>(false);
+  const [prizeUnlocked, setPrizeUnlocked] = useState<boolean>(false);
 
   // Date question state
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
@@ -181,6 +287,7 @@ export default function Home() {
   );
   const imgRef = useRef<HTMLImageElement>(null);
 
+  const questions = family ? getQuestions(family) : [];
   const currentQuestion = questions[currentQuestionIndex];
 
   // Snowfall effect
@@ -216,7 +323,6 @@ export default function Home() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              answers,
               score,
               totalQuestions: questions.length,
             }),
@@ -225,11 +331,24 @@ export default function Home() {
           if (response.ok) {
             const data = await response.json();
             setAiEvaluation(data.evaluation);
+            setPrizeUnlocked(data.prizeUnlocked);
           } else {
-            setAiEvaluation("Die KI konnte keine Auswertung erstellen. Aber ihr habt es großartig gemacht! 🎄");
+            // Fallback evaluation
+            const percentage = score / questions.length;
+            const unlocked = percentage >= 0.9;
+            setPrizeUnlocked(unlocked);
+            setAiEvaluation(
+              `Die KI konnte keine Auswertung erstellen, aber hier ist das Ergebnis:\n\n${score}/${questions.length} Punkte\n\n${unlocked ? '🎁 Geschenk freigeschaltet!' : '❌ Geschenk leider nicht freigeschaltet.'}`
+            );
           }
         } catch (error) {
-          setAiEvaluation("Die KI hat gerade Pause. Aber ihr wart super! 🎅");
+          // Fallback evaluation
+          const percentage = score / questions.length;
+          const unlocked = percentage >= 0.9;
+          setPrizeUnlocked(unlocked);
+          setAiEvaluation(
+            `Die KI hat gerade Pause, aber hier ist das Ergebnis:\n\n${score}/${questions.length} Punkte\n\n${unlocked ? '🎁 Geschenk freigeschaltet!' : '❌ Geschenk leider nicht freigeschaltet.'}`
+          );
         } finally {
           setLoadingEvaluation(false);
         }
@@ -237,22 +356,25 @@ export default function Home() {
 
       fetchEvaluation();
     }
-  }, [screen, aiEvaluation, loadingEvaluation, answers, score]);
+  }, [screen, aiEvaluation, loadingEvaluation, score]);
 
   const resetQuiz = () => {
     setScreen("start");
+    setFamily(null);
     setCurrentQuestionIndex(0);
     setScore(0);
     setAnswers([]);
     setAiEvaluation("");
     setLoadingEvaluation(false);
+    setPrizeUnlocked(false);
     setSelectedDay(null);
     setSelectedMonth(null);
     setSelectedYear(null);
     setPinPoint(null);
   };
 
-  const startQuiz = () => {
+  const selectFamily = (selectedFamily: Family) => {
+    setFamily(selectedFamily);
     setScreen("quiz");
   };
 
@@ -364,12 +486,15 @@ export default function Home() {
     return (
       <div className="container">
         <h1>🎄 Weihnachts-Quiz 🎄</h1>
-        <h2>🎁 Für Mama & Papa 🎁</h2>
+        <h2>🎁 Wähle deine Familie 🎁</h2>
         <div style={{ textAlign: 'center', margin: '24px 0', fontSize: '48px', animation: 'float 3s ease-in-out infinite' }}>
           ⛄
         </div>
-        <button className="btn-primary" onClick={startQuiz}>
-          🎅 Quiz Starten 🎅
+        <button className="btn-primary" onClick={() => selectFamily("Matis Family")}>
+          Matis Family
+        </button>
+        <button className="btn-primary" onClick={() => selectFamily("Wallner Family")}>
+          Wallner Family
         </button>
       </div>
     );
@@ -508,46 +633,34 @@ export default function Home() {
     return (
       <div className="container">
         <h2>🤖 KI Auswertung</h2>
+
+        <div className="result-text" style={{ marginBottom: '20px', fontSize: 'clamp(20px, 4vw, 24px)' }}>
+          {score}/{questions.length} Punkte
+        </div>
+
         <div className="ai-evaluation">
           {loadingEvaluation ? (
             <p style={{ textAlign: 'center', fontSize: '18px' }}>
               Die KI analysiert eure Antworten... 🤔
             </p>
           ) : (
-            <p>{aiEvaluation}</p>
+            <p style={{ whiteSpace: 'pre-line' }}>{aiEvaluation}</p>
           )}
         </div>
-        <button
-          className="btn-primary"
-          onClick={() => setScreen("results")}
-          disabled={loadingEvaluation}
-        >
-          Ergebnis anzeigen
-        </button>
-      </div>
-    );
-  }
 
-  // Results screen
-  if (screen === "results") {
-    const passed = score >= 8;
-
-    return (
-      <div className="container">
-        <div className="result-text">
-          Du hast {score}/{questions.length} Punkte.
-        </div>
-        {passed ? (
-          <button
-            className="btn-primary"
-            onClick={() => setScreen("prize-unlocked")}
-          >
-            Weiter
-          </button>
-        ) : (
-          <button className="btn-primary" onClick={resetQuiz}>
-            Nochmal versuchen
-          </button>
+        {!loadingEvaluation && (
+          prizeUnlocked ? (
+            <button
+              className="btn-primary"
+              onClick={() => setScreen("prize-unlocked")}
+            >
+              Geschenk abholen
+            </button>
+          ) : (
+            <button className="btn-primary" onClick={resetQuiz}>
+              Nochmal versuchen
+            </button>
+          )
         )}
       </div>
     );
