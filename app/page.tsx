@@ -149,7 +149,7 @@ const getQuestions = (family: Family): Question[] => {
       category: "Fun",
       question: "Wer ist der ultimative Quizmaster?",
       options: ["Gregor", "Armin Assinger", "Günther Jauch", "Steve Harvey"],
-      correctIndex: 3,
+      correctIndex: 0,
     },
     {
       id: 10,
@@ -801,14 +801,9 @@ export default function Home() {
                 {answer.question}
               </div>
               <div style={{ fontSize: '14px', color: '#495057' }}>
-                <div style={{ marginBottom: '4px' }}>
+                <div>
                   <strong>Deine Antwort:</strong> {answer.userAnswer}
                 </div>
-                {!answer.isCorrect && (
-                  <div>
-                    <strong>Richtig wäre:</strong> {answer.correctAnswer}
-                  </div>
-                )}
               </div>
             </div>
           ))}
