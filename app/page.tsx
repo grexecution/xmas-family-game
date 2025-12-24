@@ -243,7 +243,7 @@ const getQuestions = (family: Family): Question[] => {
       type: "text",
       category: "Music",
       question: "Weihnachts-Emoji-Rätsel: 🚗🏠🎄",
-      hint: "Beliebter Weihnachtssong",
+      hint: "Beliebter Weihnachtssong, nur Songnamen eingeben",
       correctAnswers: ["Driving Home for Christmas", "Driving Home For Christmas", "driving home for christmas", "Driving home for christmas"],
       caseSensitive: false,
     },
@@ -375,7 +375,7 @@ export default function Home() {
           } else {
             // Fallback evaluation with scores
             const percentage = score / questions.length;
-            const unlocked = percentage >= 0.9;
+            const unlocked = percentage >= 0.85;
             setPrizeUnlocked(unlocked);
 
             // Generate fallback scores
@@ -385,7 +385,7 @@ export default function Home() {
 
             // Generate fallback text
             let text = "";
-            if (percentage >= 0.9) {
+            if (percentage >= 0.85) {
               text = `Respekt! ${score} von ${questions.length} richtig. Das war solide. Fast schon verdächtig gut. Habt ihr etwa gegoogelt?`;
             } else if (percentage >= 0.7) {
               text = `${score} von ${questions.length}. Nicht schlecht, aber auch nicht weltbewegend. Ihr wisst schon ein bisschen was, aber Luft nach oben gibt's trotzdem reichlich.`;
@@ -402,7 +402,7 @@ export default function Home() {
         } catch (error) {
           // Fallback evaluation with scores
           const percentage = score / questions.length;
-          const unlocked = percentage >= 0.9;
+          const unlocked = percentage >= 0.85;
           setPrizeUnlocked(unlocked);
 
           // Generate fallback scores
@@ -412,7 +412,7 @@ export default function Home() {
 
           // Generate fallback text
           let text = "";
-          if (percentage >= 0.9) {
+          if (percentage >= 0.85) {
             text = `Respekt! ${score} von ${questions.length} richtig. Das war solide. Fast schon verdächtig gut. Habt ihr etwa gegoogelt?`;
           } else if (percentage >= 0.7) {
             text = `${score} von ${questions.length}. Nicht schlecht, aber auch nicht weltbewegend. Ihr wisst schon ein bisschen was, aber Luft nach oben gibt's trotzdem reichlich.`;
@@ -474,60 +474,75 @@ export default function Home() {
   };
 
   const showNextEmoji = () => {
-    const emojis = ["🍺", "🍷", "☕", "🥤", "🎅", "⛄", "🎁", "🎄"];
+    // Clear any existing timer first
+    if (reactionTimerRef.current) {
+      clearTimeout(reactionTimerRef.current);
+    }
+
+    // 20% chance for a 1-second pause (no emoji)
+    if (Math.random() < 0.2) {
+      setShowEmoji(false);
+      setCanClick(false);
+      setTimeout(() => showNextEmoji(), 1000);
+      return;
+    }
+
+    // Tree appears 40% of the time (higher chance!)
+    const emojis = ["🍺", "🍷", "☕", "🥤", "🎅", "⛄", "🎁", "🎄", "🎄", "🎄"];
     const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
 
+    // Reset all states cleanly
     setCurrentEmoji(randomEmoji);
     setShowEmoji(true);
     setReactionMessage("");
     setCanClick(true);
 
     const isTree = randomEmoji === "🎄";
-    const displayTime = isTree ? 500 : 800; // Faster!
-
-    // Clear any existing timer
-    if (reactionTimerRef.current) {
-      clearTimeout(reactionTimerRef.current);
-    }
+    const displayTime = isTree ? 350 : 500; // Faster!
 
     // Auto-hide emoji after displayTime
     reactionTimerRef.current = setTimeout(() => {
-      if (isTree && canClick) {
-        // User missed the tree!
-        setReactionMessage("❌ Zu langsam! Versuch's nochmal.");
-        setReactionScore(0);
-      }
+      // Just hide, no message on miss
       setShowEmoji(false);
       setCanClick(false);
 
-      // Show next emoji immediately - no delay!
-      setTimeout(() => showNextEmoji(), 100);
+      // Next emoji with minimal delay
+      setTimeout(() => showNextEmoji(), 80);
     }, displayTime);
   };
 
   const handleEmojiClick = () => {
-    if (!canClick || !showEmoji) return;
+    // More robust check: if we have a current emoji and test is running, accept the click
+    if (!currentEmoji || !testRunning) return;
 
+    // Store the emoji that was clicked BEFORE clearing state
+    const clickedEmoji = currentEmoji;
+
+    // Clear timer immediately - MUST happen before any state changes
+    if (reactionTimerRef.current) {
+      clearTimeout(reactionTimerRef.current);
+      reactionTimerRef.current = null;
+    }
+
+    // Disable clicking and hide emoji
     setCanClick(false);
     setShowEmoji(false);
 
-    if (reactionTimerRef.current) {
-      clearTimeout(reactionTimerRef.current);
-    }
-
-    if (currentEmoji === "🎄") {
+    if (clickedEmoji === "🎄") {
       // Correct! Clicked on tree - immediately pass!
       setReactionScore(1);
       setReactionMessage("✅ Geschafft! Nüchtern genug für die Auswertung!");
+      setTestRunning(false);
       setTimeout(() => setScreen("ai-evaluation"), 2000);
     } else {
       // Wrong! Clicked on wrong emoji
       setReactionMessage(`❌ Falsch! Das war kein Baum. Versuch's nochmal!`);
       setReactionScore(0);
+      // Show next emoji after brief message
       setTimeout(() => {
         setReactionMessage("");
-        showNextEmoji();
-      }, 800);
+        setTimeout(() => showNextEmoji(), 100);
+      }, 700);
     }
   };
 
@@ -822,41 +837,41 @@ export default function Home() {
             {showEmoji ? currentEmoji : ''}
           </div>
 
-          {/* Message Display - Always rendered */}
-          <div style={{
-            fontSize: 'clamp(16px, 4vw, 19px)',
-            fontWeight: '600',
-            color: reactionMessage.includes('✅') ? '#228B22' : reactionMessage.includes('🎄') ? '#DC143C' : '#E74C3C',
-            padding: '16px 24px',
-            background: reactionMessage.includes('✅')
-              ? 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)'
-              : 'linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(220, 20, 60, 0.08))',
-            borderRadius: '14px',
-            border: `2px solid ${reactionMessage.includes('✅') ? '#28a745' : 'rgba(220, 20, 60, 0.3)'}`,
-            boxShadow: reactionMessage ? '0 4px 16px rgba(0, 0, 0, 0.12)' : 'none',
-            maxWidth: '400px',
-            width: '100%',
-            textAlign: 'center',
-            minHeight: '58px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: reactionMessage ? 1 : 0,
-            visibility: reactionMessage ? 'visible' : 'hidden',
-            transition: 'opacity 0.3s ease'
-          }}>
-            {reactionMessage || 'Placeholder'}
-          </div>
+          {/* Message Display - Hidden during active game */}
+          {reactionMessage && (
+            <div style={{
+              fontSize: 'clamp(16px, 4vw, 19px)',
+              fontWeight: '600',
+              color: reactionMessage.includes('✅') ? '#228B22' : '#E74C3C',
+              padding: '16px 24px',
+              background: reactionMessage.includes('✅')
+                ? 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)'
+                : 'linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(220, 20, 60, 0.08))',
+              borderRadius: '14px',
+              border: `2px solid ${reactionMessage.includes('✅') ? '#28a745' : 'rgba(220, 20, 60, 0.3)'}`,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12)',
+              maxWidth: '400px',
+              width: '100%',
+              textAlign: 'center',
+              minHeight: '58px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              animation: 'fadeIn 0.3s ease-out'
+            }}>
+              {reactionMessage}
+            </div>
+          )}
 
-          {/* Start Button - Always rendered */}
-          <div style={{
-            minHeight: '60px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%'
-          }}>
-            {!testRunning && (
+          {/* Start Button - Only when not running */}
+          {!testRunning && (
+            <div style={{
+              minHeight: '60px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%'
+            }}>
               <button
                 className="btn-primary"
                 onClick={startReactionTest}
@@ -864,8 +879,8 @@ export default function Home() {
               >
                 🎯 Test Starten
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div style={{
@@ -879,8 +894,8 @@ export default function Home() {
           lineHeight: '1.6',
           fontStyle: 'italic'
         }}>
-          💡 Tipp: Der Weihnachtsbaum erscheint nur für 0.5 Sekunden!<br />
-          Sei schnell und konzentriert!
+          💡 Tipp: Der Weihnachtsbaum bleibt nur 0.35 Sekunden!<br />
+          Sei blitzschnell und konzentriert!
         </div>
       </div>
     );

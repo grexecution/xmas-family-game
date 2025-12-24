@@ -34,14 +34,15 @@ export async function POST(request: Request) {
 INPUT:
 - totalQuestions: ${totalQuestions}
 - correctAnswers: ${score}
-- WICHTIG: Ab 18/20 richtig = Geschenk freigeschaltet!
+- WICHTIG: Ab 17/20 richtig = Geschenk freigeschaltet!
 ${wrongAnswersText}
 
 SPECIAL CASES (follow these EXACTLY):
 - If score = 20/20: Start with something like "20 von 20? Fix geschummelt, aber passt schon." or similar skeptical tone
 - If score = 19/20: Start with something like "19 von 20? Glück gehabt, jedes blinde Huhn findet mal ein Korn." or similar lucky tone
-- If score = 18/20: Start with something like "18 von 20? Gerade so geschafft, Schwein gehabt." or similar barely-made-it tone
-- If score < 18: Normal sarcastic commentary about the performance
+- If score = 18/20: Start with something like "18 von 20? Solide Leistung, Respekt." or similar good performance tone
+- If score = 17/20: Start with something like "17 von 20? Gerade so geschafft, Schwein gehabt." or similar barely-made-it tone
+- If score < 17: Normal sarcastic commentary about the performance
 
 RULES:
 - First: write a 3–5 sentence sarcastic summary in German
@@ -113,7 +114,7 @@ IMPORTANT:
 
     // Calculate if prize is unlocked (server-side is source of truth)
     const percentage = score / totalQuestions;
-    const prizeUnlocked = percentage >= 0.9;
+    const prizeUnlocked = percentage >= 0.85;
 
     // Append the correct verdict based on server calculation
     evaluation += `\n\n${prizeUnlocked ? '🎁 Geschenk freigeschaltet. Leistung akzeptiert.' : '❌ Geschenk leider nicht freigeschaltet. Das tut beim Zuschauen weh.'}`;
