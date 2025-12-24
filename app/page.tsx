@@ -33,7 +33,18 @@ type PinQuestion = {
   threshold: number;
 };
 
-type Question = MCQuestion | DateQuestion | PinQuestion;
+type TextQuestion = {
+  id: number;
+  type: "text";
+  category: "History" | "Music" | "Architecture" | "Fun" | "Austria";
+  question: string;
+  hint?: string;
+  imageUrl?: string;
+  correctAnswers: string[];
+  caseSensitive?: boolean;
+};
+
+type Question = MCQuestion | DateQuestion | PinQuestion | TextQuestion;
 
 type Family = "Matis Family" | "Wallner Family";
 
@@ -99,28 +110,28 @@ const getQuestions = (family: Family): Question[] => {
     {
       id: 5,
       type: "mc",
-      category: "Fun",
-      question: "Warum ist Hallstatt international so bekannt?",
+      category: "History",
+      question: "Welcher Kaiser führte die Tradition des geschmückten Weihnachtsbaums in Österreich ein?",
       options: [
-        "Wegen der Olympischen Spiele",
-        "Wegen einer vollständigen Kopie in China",
-        "Wegen Goldminen",
-        "Wegen eines UNO-Sitzes",
+        "Kaiser Franz Joseph I.",
+        "Kaiser Karl I.",
+        "Kaiserin Maria Theresia",
+        "Kaiser Franz II.",
       ],
-      correctIndex: 1,
+      correctIndex: 0,
     },
     {
       id: 6,
       type: "mc",
-      category: "Fun",
-      question: "Was ist die traditionelle Weihnachtsbescherung in Österreich?",
+      category: "History",
+      question: "Wann wurde der erste Wiener Christkindlmarkt am Rathausplatz eröffnet?",
       options: [
-        "24. Dezember am Abend",
-        "25. Dezember am Morgen",
-        "6. Dezember (Nikolaus)",
-        "1. Januar (Neujahr)",
+        "1764",
+        "1892",
+        "1924",
+        "1955",
       ],
-      correctIndex: 0,
+      correctIndex: 1,
     },
     {
       id: 7,
@@ -222,11 +233,12 @@ const getQuestions = (family: Family): Question[] => {
     },
     {
       id: 18,
-      type: "mc",
+      type: "text",
       category: "Fun",
-      question: "Die Donau fließt durch …",
-      options: ["Graz", "Wien", "Klagenfurt", "Bregenz"],
-      correctIndex: 1,
+      question: "Österreichisches Emoji-Rätsel: 🏔️ + 🎿 + ☕ = ?",
+      hint: "Typisch österreichischer Après-Ski Klassiker mit Rum und Sahne",
+      correctAnswers: ["Jagertee", "Jagatee", "Jägertee"],
+      caseSensitive: false,
     },
     {
       id: 19,
@@ -238,14 +250,12 @@ const getQuestions = (family: Family): Question[] => {
     },
     {
       id: 20,
-      type: "pin",
-      category: "Austria",
-      question: "Tippe auf die Karte: Wo liegt das Dorf Fucking (jetzt Fugging)?",
-      mapUrl: "/austria-map.png",
-      mapWidth: 960,
-      mapHeight: 536,
-      correctPoint: { x: 420, y: 185 },
-      threshold: 150,
+      type: "text",
+      category: "Fun",
+      question: "Weihnachts-Rätsel: Wie viele Rentiere ziehen den Schlitten vom Weihnachtsmann (inklusive Rudolph)?",
+      hint: "Denk an das berühmte Lied 'Rudolph the Red-Nosed Reindeer'",
+      correctAnswers: ["9", "neun"],
+      caseSensitive: false,
     },
   ];
 };
@@ -286,6 +296,10 @@ export default function Home() {
     null
   );
   const imgRef = useRef<HTMLImageElement>(null);
+
+  // Text question state
+  const [textAnswer, setTextAnswer] = useState<string>("");
+  const [showImageModal, setShowImageModal] = useState<boolean>(false);
 
   const questions = family ? getQuestions(family) : [];
   const currentQuestion = questions[currentQuestionIndex];
@@ -407,6 +421,8 @@ export default function Home() {
     setSelectedMonth(null);
     setSelectedYear(null);
     setPinPoint(null);
+    setTextAnswer("");
+    setShowImageModal(false);
   };
 
   const selectFamily = (selectedFamily: Family) => {
@@ -549,6 +565,34 @@ export default function Home() {
     }
 
     setPinPoint(null);
+    advanceQuestion();
+  };
+
+  const handleTextSubmit = () => {
+    if (currentQuestion.type !== "text") return;
+    if (!textAnswer.trim()) return;
+
+    const userAnswer = textAnswer.trim();
+    const isCorrect = currentQuestion.correctAnswers.some(answer => {
+      if (currentQuestion.caseSensitive) {
+        return userAnswer === answer;
+      }
+      return userAnswer.toLowerCase() === answer.toLowerCase();
+    });
+
+    setAnswers([...answers, {
+      question: currentQuestion.question,
+      userAnswer: userAnswer,
+      correctAnswer: currentQuestion.correctAnswers[0],
+      isCorrect
+    }]);
+
+    if (isCorrect) {
+      setScore(score + 1);
+    }
+
+    setTextAnswer("");
+    setShowImageModal(false);
     advanceQuestion();
   };
 
@@ -706,12 +750,180 @@ export default function Home() {
             </button>
           </div>
         )}
+
+        {currentQuestion.type === "text" && (
+          <div>
+            {currentQuestion.hint && (
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(34, 139, 34, 0.1))',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                marginBottom: '20px',
+                fontSize: '14px',
+                color: '#2c3e50',
+                fontStyle: 'italic',
+                border: '1px solid rgba(255, 215, 0, 0.3)'
+              }}>
+                💡 Tipp: {currentQuestion.hint}
+              </div>
+            )}
+
+            {currentQuestion.imageUrl && (
+              <>
+                <div
+                  onClick={() => setShowImageModal(true)}
+                  style={{
+                    cursor: 'pointer',
+                    marginBottom: '20px',
+                    border: '3px solid rgba(255, 215, 0, 0.5)',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    position: 'relative'
+                  }}
+                >
+                  <img
+                    src={currentQuestion.imageUrl}
+                    alt="Frage Bild"
+                    style={{ width: '100%', height: 'auto', display: 'block' }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    right: '10px',
+                    background: 'rgba(0,0,0,0.7)',
+                    color: 'white',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: '600'
+                  }}>
+                    🔍 Klicken zum Vergrößern
+                  </div>
+                </div>
+
+                {showImageModal && (
+                  <div
+                    onClick={() => setShowImageModal(false)}
+                    style={{
+                      position: 'fixed',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'rgba(0, 0, 0, 0.95)',
+                      zIndex: 9999,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '20px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <img
+                      src={currentQuestion.imageUrl}
+                      alt="Vergrößertes Bild"
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain',
+                        borderRadius: '8px'
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      top: '20px',
+                      right: '20px',
+                      background: 'white',
+                      color: '#DC143C',
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '24px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}>
+                      ×
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            <input
+              type="text"
+              value={textAnswer}
+              onChange={(e) => setTextAnswer(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && textAnswer.trim()) {
+                  handleTextSubmit();
+                }
+              }}
+              placeholder="Deine Antwort hier eingeben..."
+              style={{
+                width: '100%',
+                minHeight: '52px',
+                fontSize: '16px',
+                fontWeight: '600',
+                padding: '12px 16px',
+                border: '2px solid rgba(220, 20, 60, 0.3)',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #ffffff 0%, #fff5f5 100%)',
+                color: '#2c3e50',
+                marginBottom: '20px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                transition: 'all 0.3s ease'
+              }}
+            />
+
+            <button
+              className="btn-primary"
+              onClick={handleTextSubmit}
+              disabled={!textAnswer.trim()}
+            >
+              Antwort absenden
+            </button>
+          </div>
+        )}
       </div>
     );
   }
 
   // AI Evaluation screen
   if (screen === "ai-evaluation") {
+    // Parse scores from AI evaluation
+    const parseScores = (text: string) => {
+      const intelligenzMatch = text.match(/Intelligenz:\s*(\d+)\/100/);
+      const wissenMatch = text.match(/Wissen:\s*(\d+)\/100/);
+      const peinlichkeitMatch = text.match(/Peinlichkeit:\s*(\d+)\/100/);
+      const schoenheitMatch = text.match(/Schönheitspunkte:\s*(\d+)\/100/);
+
+      return {
+        intelligenz: intelligenzMatch ? parseInt(intelligenzMatch[1]) : 0,
+        wissen: wissenMatch ? parseInt(wissenMatch[1]) : 0,
+        peinlichkeit: peinlichkeitMatch ? parseInt(peinlichkeitMatch[1]) : 0,
+        schoenheit: schoenheitMatch ? parseInt(schoenheitMatch[1]) : 100
+      };
+    };
+
+    // Extract text without scores
+    const getEvaluationText = (text: string) => {
+      return text.split(/Intelligenz:/)[0].trim();
+    };
+
+    // Extract final verdict
+    const getFinalVerdict = (text: string) => {
+      const verdictMatch = text.match(/(🎁|❌).*$/);
+      return verdictMatch ? verdictMatch[0] : '';
+    };
+
+    const scores = aiEvaluation ? parseScores(aiEvaluation) : null;
+    const evaluationText = aiEvaluation ? getEvaluationText(aiEvaluation) : '';
+    const finalVerdict = aiEvaluation ? getFinalVerdict(aiEvaluation) : '';
+
     return (
       <div className="container">
         <h2>🤖 KI Auswertung</h2>
@@ -726,30 +938,170 @@ export default function Home() {
               Die KI analysiert eure Antworten... 🤔
             </p>
           ) : (
-            <p style={{ whiteSpace: 'pre-line' }}>{aiEvaluation}</p>
+            <>
+              <p style={{ marginBottom: '24px' }}>{evaluationText}</p>
+
+              {scores && (
+                <div style={{ marginBottom: '24px' }}>
+                  {/* Intelligenz */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ fontWeight: '700', color: '#2c3e50' }}>🧠 Intelligenz</span>
+                      <span style={{ fontWeight: '700', color: '#4A90E2' }}>{scores.intelligenz}/100</span>
+                    </div>
+                    <div style={{
+                      height: '24px',
+                      background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: '2px solid rgba(0,0,0,0.1)'
+                    }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${scores.intelligenz}%`,
+                        background: 'linear-gradient(135deg, #4A90E2 0%, #357ABD 100%)',
+                        transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: '0 2px 8px rgba(74, 144, 226, 0.4)'
+                      }} />
+                    </div>
+                  </div>
+
+                  {/* Wissen */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ fontWeight: '700', color: '#2c3e50' }}>📚 Wissen</span>
+                      <span style={{ fontWeight: '700', color: '#9B59B6' }}>{scores.wissen}/100</span>
+                    </div>
+                    <div style={{
+                      height: '24px',
+                      background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: '2px solid rgba(0,0,0,0.1)'
+                    }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${scores.wissen}%`,
+                        background: 'linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%)',
+                        transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s',
+                        boxShadow: '0 2px 8px rgba(155, 89, 182, 0.4)'
+                      }} />
+                    </div>
+                  </div>
+
+                  {/* Peinlichkeit */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ fontWeight: '700', color: '#2c3e50' }}>😳 Peinlichkeit</span>
+                      <span style={{ fontWeight: '700', color: '#E74C3C' }}>{scores.peinlichkeit}/100</span>
+                    </div>
+                    <div style={{
+                      height: '24px',
+                      background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: '2px solid rgba(0,0,0,0.1)'
+                    }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${scores.peinlichkeit}%`,
+                        background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
+                        transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.4s',
+                        boxShadow: '0 2px 8px rgba(231, 76, 60, 0.4)'
+                      }} />
+                    </div>
+                  </div>
+
+                  {/* Schönheitspunkte */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ fontWeight: '700', color: '#2c3e50' }}>✨ Schönheitspunkte</span>
+                      <span style={{ fontWeight: '700', color: '#F39C12' }}>{scores.schoenheit}/100</span>
+                    </div>
+                    <div style={{
+                      height: '24px',
+                      background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: '2px solid rgba(0,0,0,0.1)'
+                    }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${scores.schoenheit}%`,
+                        background: 'linear-gradient(135deg, #F39C12 0%, #E67E22 100%)',
+                        transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.6s',
+                        boxShadow: '0 2px 8px rgba(243, 156, 18, 0.4)'
+                      }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {finalVerdict && (
+                <p style={{
+                  fontSize: 'clamp(16px, 4vw, 18px)',
+                  fontWeight: '700',
+                  textAlign: 'center',
+                  padding: '16px',
+                  background: prizeUnlocked
+                    ? 'linear-gradient(135deg, rgba(34, 139, 34, 0.15), rgba(46, 139, 87, 0.1))'
+                    : 'linear-gradient(135deg, rgba(220, 20, 60, 0.15), rgba(231, 76, 60, 0.1))',
+                  borderRadius: '12px',
+                  border: prizeUnlocked
+                    ? '2px solid rgba(34, 139, 34, 0.3)'
+                    : '2px solid rgba(220, 20, 60, 0.3)',
+                  marginTop: '8px'
+                }}>
+                  {finalVerdict}
+                </p>
+              )}
+            </>
           )}
         </div>
 
         {!loadingEvaluation && (
           <>
-            <button
-              className="btn-primary"
-              onClick={() => setScreen("answer-review")}
-              style={{ marginBottom: '12px' }}
-            >
-              Antworten überprüfen
-            </button>
             {prizeUnlocked ? (
-              <button
-                className="btn-primary"
-                onClick={() => setScreen("prize-reveal")}
-              >
-                Geschenk ansehen
-              </button>
+              <>
+                <button
+                  className="btn-primary"
+                  onClick={() => setScreen("prize-reveal")}
+                  style={{
+                    background: 'linear-gradient(135deg, #228B22 0%, #2E8B57 100%)',
+                    borderColor: '#FFD700',
+                    marginBottom: '12px',
+                    fontSize: '18px',
+                    fontWeight: '800',
+                    boxShadow: '0 8px 25px rgba(34, 139, 34, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3)',
+                    animation: 'glow 2s ease-in-out infinite'
+                  }}
+                >
+                  🎁 Geschenk ansehen 🎁
+                </button>
+                <button
+                  className="btn-primary"
+                  onClick={() => setScreen("answer-review")}
+                  style={{
+                    background: 'linear-gradient(135deg, #666 0%, #888 100%)',
+                    fontSize: '14px'
+                  }}
+                >
+                  Antworten überprüfen
+                </button>
+              </>
             ) : (
-              <button className="btn-primary" onClick={resetQuiz}>
-                Nochmal versuchen
-              </button>
+              <>
+                <button
+                  className="btn-primary"
+                  onClick={() => setScreen("answer-review")}
+                  style={{ marginBottom: '12px' }}
+                >
+                  Antworten überprüfen
+                </button>
+                <button className="btn-primary" onClick={resetQuiz}>
+                  Nochmal versuchen
+                </button>
+              </>
             )}
           </>
         )}
