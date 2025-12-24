@@ -333,22 +333,58 @@ export default function Home() {
             setAiEvaluation(data.evaluation);
             setPrizeUnlocked(data.prizeUnlocked);
           } else {
-            // Fallback evaluation
+            // Fallback evaluation with scores
             const percentage = score / questions.length;
             const unlocked = percentage >= 0.9;
             setPrizeUnlocked(unlocked);
-            setAiEvaluation(
-              `Die KI konnte keine Auswertung erstellen, aber hier ist das Ergebnis:\n\n${score}/${questions.length} Punkte\n\n${unlocked ? '🎁 Geschenk freigeschaltet!' : '❌ Geschenk leider nicht freigeschaltet.'}`
-            );
+
+            // Generate fallback scores
+            const intelligenz = Math.round(percentage * 85);
+            const wissen = Math.round(percentage * 90);
+            const peinlichkeit = Math.round((1 - percentage) * 75 + 10);
+
+            // Generate fallback text
+            let text = "";
+            if (percentage >= 0.9) {
+              text = `Respekt! ${score} von ${questions.length} richtig. Das war solide. Fast schon verdächtig gut. Habt ihr etwa gegoogelt?`;
+            } else if (percentage >= 0.7) {
+              text = `${score} von ${questions.length}. Nicht schlecht, aber auch nicht weltbewegend. Ihr wisst schon ein bisschen was, aber Luft nach oben gibt's trotzdem reichlich.`;
+            } else if (percentage >= 0.5) {
+              text = `${score} von ${questions.length} Punkte. Joa. Hätte schlimmer sein können. Hätte aber auch deutlich besser sein können. Mittelmäßigkeit in Reinform.`;
+            } else {
+              text = `${score} von ${questions.length}. Autsch. Das war jetzt nicht so prall. Vielleicht beim nächsten Mal vorher ein bisschen was lernen?`;
+            }
+
+            const fallbackEval = `${text}\n\nIntelligenz: ${intelligenz}/100\nWissen: ${wissen}/100\nPeinlichkeit: ${peinlichkeit}/100\nSchönheitspunkte: 100/100\n\n${unlocked ? '🎁 Geschenk freigeschaltet. Leistung akzeptiert.' : '❌ Geschenk leider nicht freigeschaltet. Das tut beim Zuschauen weh.'}`;
+
+            setAiEvaluation(fallbackEval);
           }
         } catch (error) {
-          // Fallback evaluation
+          // Fallback evaluation with scores
           const percentage = score / questions.length;
           const unlocked = percentage >= 0.9;
           setPrizeUnlocked(unlocked);
-          setAiEvaluation(
-            `Die KI hat gerade Pause, aber hier ist das Ergebnis:\n\n${score}/${questions.length} Punkte\n\n${unlocked ? '🎁 Geschenk freigeschaltet!' : '❌ Geschenk leider nicht freigeschaltet.'}`
-          );
+
+          // Generate fallback scores
+          const intelligenz = Math.round(percentage * 85);
+          const wissen = Math.round(percentage * 90);
+          const peinlichkeit = Math.round((1 - percentage) * 75 + 10);
+
+          // Generate fallback text
+          let text = "";
+          if (percentage >= 0.9) {
+            text = `Respekt! ${score} von ${questions.length} richtig. Das war solide. Fast schon verdächtig gut. Habt ihr etwa gegoogelt?`;
+          } else if (percentage >= 0.7) {
+            text = `${score} von ${questions.length}. Nicht schlecht, aber auch nicht weltbewegend. Ihr wisst schon ein bisschen was, aber Luft nach oben gibt's trotzdem reichlich.`;
+          } else if (percentage >= 0.5) {
+            text = `${score} von ${questions.length} Punkte. Joa. Hätte schlimmer sein können. Hätte aber auch deutlich besser sein können. Mittelmäßigkeit in Reinform.`;
+          } else {
+            text = `${score} von ${questions.length}. Autsch. Das war jetzt nicht so prall. Vielleicht beim nächsten Mal vorher ein bisschen was lernen?`;
+          }
+
+          const fallbackEval = `${text}\n\nIntelligenz: ${intelligenz}/100\nWissen: ${wissen}/100\nPeinlichkeit: ${peinlichkeit}/100\nSchönheitspunkte: 100/100\n\n${unlocked ? '🎁 Geschenk freigeschaltet. Leistung akzeptiert.' : '❌ Geschenk leider nicht freigeschaltet. Das tut beim Zuschauen weh.'}`;
+
+          setAiEvaluation(fallbackEval);
         } finally {
           setLoadingEvaluation(false);
         }
@@ -356,7 +392,7 @@ export default function Home() {
 
       fetchEvaluation();
     }
-  }, [screen, aiEvaluation, loadingEvaluation, score]);
+  }, [screen, aiEvaluation, loadingEvaluation, score, questions.length]);
 
   const resetQuiz = () => {
     setScreen("start");
@@ -477,14 +513,26 @@ export default function Home() {
 
     const isCorrect = distance <= currentQuestion.threshold;
 
-    console.log('📍 Map Pin Answer:', {
-      question: currentQuestion.question,
-      userClick: `(${Math.round(pinPoint.x)}, ${Math.round(pinPoint.y)})`,
-      correctPoint: `(${currentQuestion.correctPoint.x}, ${currentQuestion.correctPoint.y})`,
-      distance: Math.round(distance),
-      threshold: currentQuestion.threshold,
-      isCorrect: isCorrect ? '✅ CORRECT' : '❌ WRONG'
-    });
+    // Enhanced console logging for map testing
+    console.log('\n' + '='.repeat(80));
+    console.log('📍 MAP PIN ANSWER - TESTING VICINITY');
+    console.log('='.repeat(80));
+    console.log(`Question: ${currentQuestion.question}`);
+    console.log('-'.repeat(80));
+    console.log(`👆 Your Click:       (${Math.round(pinPoint.x)}, ${Math.round(pinPoint.y)})`);
+    console.log(`🎯 Correct Point:    (${currentQuestion.correctPoint.x}, ${currentQuestion.correctPoint.y})`);
+    console.log(`📏 Distance:         ${Math.round(distance)} pixels`);
+    console.log(`⚡ Threshold:        ${currentQuestion.threshold} pixels`);
+    console.log('-'.repeat(80));
+    if (isCorrect) {
+      console.log('✅ RESULT: CORRECT! Distance within threshold.');
+      console.log(`   Distance ${Math.round(distance)} ≤ Threshold ${currentQuestion.threshold}`);
+    } else {
+      console.log('❌ RESULT: WRONG! Distance exceeds threshold.');
+      console.log(`   Distance ${Math.round(distance)} > Threshold ${currentQuestion.threshold}`);
+      console.log(`   You were ${Math.round(distance - currentQuestion.threshold)} pixels too far.`);
+    }
+    console.log('='.repeat(80) + '\n');
 
     setAnswers([...answers, {
       question: currentQuestion.question,

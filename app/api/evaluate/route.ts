@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { answers, score, totalQuestions } = await request.json();
+    const { score, totalQuestions } = await request.json();
 
     const apiKey = process.env.OPENAI_API_KEY;
 
@@ -13,22 +13,57 @@ export async function POST(request: Request) {
       );
     }
 
-    // Filter wrong answers
-    const wrongAnswers = answers.filter((a: any) => !a.isCorrect);
+    const prompt = `TONE:
+- Sarkastisch, frech, aber sympathisch
+- Niemals beleidigend oder verletzend
+- Eher „familiäres Necken" als Spott
+- Kurz, pointiert, lustig
+- Kein Coaching, keine Erklärungen
 
-    // Build prompt for ChatGPT
-    const wrongAnswersText = wrongAnswers.map((a: any) =>
-      `- Frage: "${a.question}"\n  Deine Antwort: "${a.userAnswer}"\n  Richtige Antwort: "${a.correctAnswer}"`
-    ).join('\n\n');
+INPUT:
+- totalQuestions: ${totalQuestions}
+- correctAnswers: ${score}
 
-    const prompt = `Du bist ein sarkastischer, humorvoller Quiz-Auswerter für ein Österreich-Quiz. Schreibe eine kurze (2-3 Sätze), witzige und leicht sarkastische Auswertung auf Deutsch.
+RULES:
+- First: write a 3–5 sentence sarcastic summary of the performance in German.
+- Then: display four scores from 0–100 (integers):
+  • Intelligenz
+  • Wissen
+  • Peinlichkeit
+  • Schönheitspunkte (ALWAYS exactly 100, no exceptions)
+- The scores should loosely correlate with the performance, but humor > precision.
+- Peinlichkeit increases when performance is worse.
+- Intelligenz und Wissen increase when performance is better.
+- Schönheitspunkte are always 100, even if everything else is terrible.
 
-Ergebnis: ${score}/${totalQuestions} Punkte
+GIFT LOGIC (STRICT):
+- Calculate percentage = ${score} / ${totalQuestions}
+- The gift is unlocked ONLY if percentage ≥ 0.9 (90%)
+- No soft rules, no mercy overrides
 
-Falsche Antworten:
-${wrongAnswersText || 'Keine - Perfekt!'}
+OUTPUT FORMAT (STRICT, FOLLOW EXACTLY):
 
-Schreibe die Auswertung in einem freundlich-spöttischen Ton. Erwähne spezifisch 1-2 der falschen Antworten auf lustige Weise. Halte es kurz und unterhaltsam!`;
+1) A sarcastic evaluation paragraph (no headline)
+2) A blank line
+3) The score block exactly like this:
+
+Intelligenz: XX/100
+Wissen: XX/100
+Peinlichkeit: XX/100
+Schönheitspunkte: 100/100
+
+4) A blank line
+5) Final verdict:
+- If unlocked:
+  "🎁 Geschenk freigeschaltet. Leistung akzeptiert."
+- If NOT unlocked:
+  "❌ Geschenk leider nicht freigeschaltet. Das tut beim Zuschauen weh."
+
+IMPORTANT:
+- Do NOT explain the rules
+- Do NOT mention calculations
+- Do NOT add emojis except the single one in the final verdict
+- Do NOT add extra text before or after the required output`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -41,15 +76,15 @@ Schreibe die Auswertung in einem freundlich-spöttischen Ton. Erwähne spezifisc
         messages: [
           {
             role: 'system',
-            content: 'Du bist ein witziger, sarkastischer Quiz-Auswerter.'
+            content: 'Du bist ein sarkastischer Quiz-Auswerter. Befolge die Anweisungen EXAKT.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.9,
-        max_tokens: 200,
+        temperature: 0.8,
+        max_tokens: 300,
       }),
     });
 
@@ -65,7 +100,11 @@ Schreibe die Auswertung in einem freundlich-spöttischen Ton. Erwähne spezifisc
     const data = await response.json();
     const evaluation = data.choices[0].message.content;
 
-    return NextResponse.json({ evaluation });
+    // Calculate if prize is unlocked
+    const percentage = score / totalQuestions;
+    const prizeUnlocked = percentage >= 0.9;
+
+    return NextResponse.json({ evaluation, prizeUnlocked });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json(
