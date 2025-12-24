@@ -148,8 +148,8 @@ const getQuestions = (family: Family): Question[] => {
       question: "Was ist bei diesem Quiz wirklich wichtig?",
       options: [
         "Alle Antworten richtig",
-        "Diskussionen",
-        "Das Geschenk am Ende",
+        "Spaß",
+        "Der Preis am Ende",
         "Rechthaben",
       ],
       correctIndex: 2,
@@ -241,7 +241,7 @@ const getQuestions = (family: Family): Question[] => {
       type: "text",
       category: "Music",
       question: "Weihnachts-Emoji-Rätsel: 🚗🏠🎄",
-      hint: "Beliebter Weihnachtssong über die Heimreise zum Fest",
+      hint: "Beliebter Weihnachtssong",
       correctAnswers: ["Driving Home for Christmas", "Driving Home For Christmas", "driving home for christmas"],
       caseSensitive: false,
     },
@@ -258,7 +258,7 @@ const getQuestions = (family: Family): Question[] => {
       type: "mc",
       category: "Fun",
       question: "Und zum Abschluss: Wer ist der ultimative Quizmaster?",
-      options: ["Gregor", "Armin Assinger", "Günther Jauch", "Steve Harvey"],
+      options: ["Gregor Wallner", "Armin Assinger", "Günther Jauch", "Steve Harvey"],
       correctIndex: 0,
     },
   ];
@@ -343,6 +343,7 @@ export default function Home() {
             body: JSON.stringify({
               score,
               totalQuestions: questions.length,
+              answers,
             }),
           });
 
@@ -622,11 +623,43 @@ export default function Home() {
         <div style={{ textAlign: 'center', margin: '24px 0', fontSize: '48px', animation: 'float 3s ease-in-out infinite' }}>
           ⛄
         </div>
-        <button className="btn-primary" onClick={() => selectFamily("Matis Family")}>
-          Matis Family
+        <button
+          className="btn-primary"
+          onClick={() => selectFamily("Matis Family")}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px 20px' }}
+        >
+          <img
+            src="/matis.png"
+            alt="Matis Family"
+            style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '3px solid rgba(255, 215, 0, 0.8)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+            }}
+          />
+          <span>Matis Family</span>
         </button>
-        <button className="btn-primary" onClick={() => selectFamily("Wallner Family")}>
-          Wallner Family
+        <button
+          className="btn-primary"
+          onClick={() => selectFamily("Wallner Family")}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px 20px' }}
+        >
+          <img
+            src="/wallner.png"
+            alt="Wallner Family"
+            style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '3px solid rgba(255, 215, 0, 0.8)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+            }}
+          />
+          <span>Wallner Family</span>
         </button>
       </div>
     );
@@ -639,7 +672,6 @@ export default function Home() {
         <div className="progress">
           Frage {currentQuestionIndex + 1} von {questions.length}
         </div>
-        <span className="category">{currentQuestion.category}</span>
         <div className="question">{currentQuestion.question}</div>
 
         {currentQuestion.type === "mc" && (

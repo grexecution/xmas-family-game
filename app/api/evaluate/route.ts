@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { score, totalQuestions } = await request.json();
+    const { score, totalQuestions, answers } = await request.json();
 
     const apiKey = process.env.OPENAI_API_KEY;
 
@@ -11,6 +11,17 @@ export async function POST(request: Request) {
         { error: 'OpenAI API key not configured' },
         { status: 500 }
       );
+    }
+
+    // Filter wrong answers
+    const wrongAnswers = answers.filter((a: any) => !a.isCorrect);
+
+    // Build wrong answers text (only if there are any)
+    let wrongAnswersText = "";
+    if (wrongAnswers.length > 0) {
+      wrongAnswersText = "\nFALSCHE ANTWORTEN:\n" + wrongAnswers.map((a: any, i: number) =>
+        `${i + 1}. Frage: "${a.question}"\n   Eure Antwort: "${a.userAnswer}"\n   Richtige Antwort: "${a.correctAnswer}"`
+      ).join('\n\n');
     }
 
     const prompt = `TONE:
@@ -23,18 +34,27 @@ export async function POST(request: Request) {
 INPUT:
 - totalQuestions: ${totalQuestions}
 - correctAnswers: ${score}
+- WICHTIG: Ab 18/20 richtig = Geschenk freigeschaltet!
+${wrongAnswersText}
+
+SPECIAL CASES (follow these EXACTLY):
+- If score = 20/20: Start with something like "20 von 20? Fix geschummelt, aber passt schon." or similar skeptical tone
+- If score = 19/20: Start with something like "19 von 20? Glück gehabt, jedes blinde Huhn findet mal ein Korn." or similar lucky tone
+- If score = 18/20: Start with something like "18 von 20? Gerade so geschafft, Schwein gehabt." or similar barely-made-it tone
+- If score < 18: Normal sarcastic commentary about the performance
 
 RULES:
-- First: write a 3–5 sentence sarcastic summary of the performance in German.
+- First: write a 3–5 sentence sarcastic summary in German
+- If there are wrong answers: Pick ONLY ONE (the most interesting/funny one) and make a specific joke about it
+- Do NOT mention all wrong answers, just pick the best one for comedy
 - Then: display four scores from 0–100 (integers):
   • Intelligenz
   • Wissen
   • Peinlichkeit
   • Schönheitspunkte (ALWAYS exactly 100, no exceptions)
-- The scores should loosely correlate with the performance, but humor > precision.
-- Peinlichkeit increases when performance is worse.
-- Intelligenz und Wissen increase when performance is better.
-- Schönheitspunkte are always 100, even if everything else is terrible.
+- The scores should loosely correlate with the performance, but humor > precision
+- Peinlichkeit increases when performance is worse
+- Intelligenz und Wissen increase when performance is better
 
 OUTPUT FORMAT (STRICT, FOLLOW EXACTLY):
 
@@ -52,7 +72,8 @@ IMPORTANT:
 - Do NOT mention calculations
 - Do NOT add emojis
 - Do NOT mention the gift or whether it's unlocked
-- Do NOT add extra text before or after the required output`;
+- Do NOT add extra text before or after the required output
+- Pick ONLY ONE wrong answer to comment on (the funniest one)`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
