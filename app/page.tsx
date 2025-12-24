@@ -498,7 +498,7 @@ export default function Home() {
     setCanClick(true);
 
     const isTree = randomEmoji === "🎄";
-    const displayTime = isTree ? 350 : 500; // Faster!
+    const displayTime = isTree ? 450 : 500; // Faster!
 
     // Auto-hide emoji after displayTime
     reactionTimerRef.current = setTimeout(() => {
@@ -894,7 +894,7 @@ export default function Home() {
           lineHeight: '1.6',
           fontStyle: 'italic'
         }}>
-          💡 Tipp: Der Weihnachtsbaum bleibt nur 0.35 Sekunden!<br />
+          💡 Tipp: Der Weihnachtsbaum bleibt nur 0.45 Sekunden!<br />
           Sei blitzschnell und konzentriert!
         </div>
       </div>
