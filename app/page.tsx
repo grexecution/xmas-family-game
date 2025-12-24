@@ -732,7 +732,8 @@ export default function Home() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      setScreen("reaction-test");
+      // Skip reaction test - go directly to AI evaluation
+      setScreen("ai-evaluation");
     }
   };
 
@@ -784,7 +785,8 @@ export default function Home() {
     );
   }
 
-  // Reaction test screen
+  // Reaction test screen - COMMENTED OUT (not needed)
+  /*
   if (screen === "reaction-test") {
     return (
       <div className="container">
@@ -809,7 +811,7 @@ export default function Home() {
           justifyContent: 'flex-start',
           gap: '24px'
         }}>
-          {/* Emoji Display - Always rendered to prevent layout shift */}
+          {/* Emoji Display - Always rendered to prevent layout shift *\/}
           <div
             onClick={handleEmojiClick}
             style={{
@@ -837,7 +839,7 @@ export default function Home() {
             {showEmoji ? currentEmoji : ''}
           </div>
 
-          {/* Message Display - Hidden during active game */}
+          {/* Message Display - Hidden during active game *\/}
           {reactionMessage && (
             <div style={{
               fontSize: 'clamp(16px, 4vw, 19px)',
@@ -863,7 +865,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Start Button - Only when not running */}
+          {/* Start Button - Only when not running *\/}
           {!testRunning && (
             <div style={{
               minHeight: '60px',
@@ -900,6 +902,7 @@ export default function Home() {
       </div>
     );
   }
+  */
 
   // Quiz screen
   if (screen === "quiz") {
