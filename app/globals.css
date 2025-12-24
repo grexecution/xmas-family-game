@@ -247,6 +247,11 @@ button {
   position: relative;
   overflow: hidden;
   letter-spacing: 0.5px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus {
+  outline: none;
 }
 
 button::before {
@@ -285,15 +290,8 @@ button:disabled {
   text-transform: uppercase;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #B8172B 0%, #DC143C 100%);
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
-  animation: glow 2s ease-in-out infinite;
-}
-
 .btn-primary:active:not(:disabled) {
-  transform: translateY(-1px) scale(0.98);
+  transform: scale(0.98);
 }
 
 .btn-option {
@@ -306,16 +304,8 @@ button:disabled {
   font-weight: 600;
 }
 
-.btn-option:hover {
-  background: linear-gradient(135deg, #228B22 0%, #2E8B57 100%);
-  color: white;
-  transform: translateX(8px) scale(1.02);
-  border-color: #FFD700;
-  box-shadow: 0 6px 20px rgba(34, 139, 34, 0.3), 0 0 30px rgba(255, 215, 0, 0.2);
-}
-
 .btn-option:active {
-  transform: translateX(4px) scale(0.98);
+  transform: scale(0.98);
 }
 
 .date-select {
@@ -342,8 +332,6 @@ button:disabled {
 .date-select select:focus {
   outline: none;
   border-color: #DC143C;
-  box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1), 0 4px 12px rgba(220, 20, 60, 0.2);
-  transform: scale(1.02);
 }
 
 .map-container {
@@ -356,11 +344,6 @@ button:disabled {
   transition: all 0.3s ease;
 }
 
-.map-container:hover {
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), 0 0 60px rgba(255, 215, 0, 0.3);
-  transform: scale(1.01);
-}
-
 .map-container img {
   width: 100%;
   height: auto;
@@ -368,11 +351,6 @@ button:disabled {
   cursor: crosshair;
   user-select: none;
   -webkit-user-select: none;
-  transition: filter 0.3s ease;
-}
-
-.map-container:hover img {
-  filter: brightness(1.05);
 }
 
 .pin-marker-overlay {

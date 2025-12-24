@@ -554,6 +554,11 @@ export default function Home() {
   };
 
   const advanceQuestion = () => {
+    // Remove focus from any active element to prevent hover/focus states
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
