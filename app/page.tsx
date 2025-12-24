@@ -158,9 +158,14 @@ const getQuestions = (family: Family): Question[] => {
       id: 9,
       type: "mc",
       category: "Fun",
-      question: "Wer ist der ultimative Quizmaster?",
-      options: ["Gregor", "Armin Assinger", "Günther Jauch", "Steve Harvey"],
-      correctIndex: 0,
+      question: "Warum heißt der Ort früher 'Fucking' heute anders?",
+      options: [
+        "Wegen EU-Vorschriften",
+        "Wegen internationaler Witze und Ortstafeldiebstähle",
+        "Wegen politischer Proteste",
+        "Wegen eines Übersetzungsfehlers",
+      ],
+      correctIndex: 1,
     },
     {
       id: 10,
@@ -234,10 +239,10 @@ const getQuestions = (family: Family): Question[] => {
     {
       id: 18,
       type: "text",
-      category: "Fun",
-      question: "Österreichisches Emoji-Rätsel: 🏔️ + 🎿 + ☕ = ?",
-      hint: "Typisch österreichischer Après-Ski Klassiker mit Rum und Sahne",
-      correctAnswers: ["Jagertee", "Jagatee", "Jägertee"],
+      category: "Music",
+      question: "Weihnachts-Emoji-Rätsel: 🚗🏠🎄",
+      hint: "Beliebter Weihnachtssong über die Heimreise zum Fest",
+      correctAnswers: ["Driving Home for Christmas", "Driving Home For Christmas", "driving home for christmas"],
       caseSensitive: false,
     },
     {
@@ -250,12 +255,11 @@ const getQuestions = (family: Family): Question[] => {
     },
     {
       id: 20,
-      type: "text",
+      type: "mc",
       category: "Fun",
-      question: "Weihnachts-Rätsel: Wie viele Rentiere ziehen den Schlitten vom Weihnachtsmann (inklusive Rudolph)?",
-      hint: "Denk an das berühmte Lied 'Rudolph the Red-Nosed Reindeer'",
-      correctAnswers: ["9", "neun"],
-      caseSensitive: false,
+      question: "Und zum Abschluss: Wer ist der ultimative Quizmaster?",
+      options: ["Gregor", "Armin Assinger", "Günther Jauch", "Steve Harvey"],
+      correctIndex: 0,
     },
   ];
 };
@@ -1179,7 +1183,7 @@ export default function Home() {
       <div className="container">
         <h1 style={{ marginBottom: '24px' }}>🎁 Euer Geschenk 🎁</h1>
         <div className="prize-text">
-          🎬 1 Jahr Curiosity Stream Premium
+          <h3>🎬 1 Jahr Curiosity Stream Premium</h3>
           {"\n\n"}
           Tausende Dokumentationen über Geschichte, Wissenschaft, Natur, Technologie und vieles mehr. Streamt auf allen Geräten – ohne Werbung, in HD-Qualität.
           {"\n\n"}

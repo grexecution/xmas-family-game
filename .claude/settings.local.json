@@ -11,7 +11,10 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(ls:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "WebSearch",
+      "WebFetch(domain:www.beano.com)",
+      "WebFetch(domain:parade.com)"
     ]
   }
 }
