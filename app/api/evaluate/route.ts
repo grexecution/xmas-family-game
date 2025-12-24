@@ -36,11 +36,6 @@ RULES:
 - Intelligenz und Wissen increase when performance is better.
 - Schönheitspunkte are always 100, even if everything else is terrible.
 
-GIFT LOGIC (STRICT):
-- Calculate percentage = ${score} / ${totalQuestions}
-- The gift is unlocked ONLY if percentage ≥ 0.9 (90%)
-- No soft rules, no mercy overrides
-
 OUTPUT FORMAT (STRICT, FOLLOW EXACTLY):
 
 1) A sarcastic evaluation paragraph (no headline)
@@ -52,17 +47,11 @@ Wissen: XX/100
 Peinlichkeit: XX/100
 Schönheitspunkte: 100/100
 
-4) A blank line
-5) Final verdict:
-- If unlocked:
-  "🎁 Geschenk freigeschaltet. Leistung akzeptiert."
-- If NOT unlocked:
-  "❌ Geschenk leider nicht freigeschaltet. Das tut beim Zuschauen weh."
-
 IMPORTANT:
 - Do NOT explain the rules
 - Do NOT mention calculations
-- Do NOT add emojis except the single one in the final verdict
+- Do NOT add emojis
+- Do NOT mention the gift or whether it's unlocked
 - Do NOT add extra text before or after the required output`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -98,11 +87,14 @@ IMPORTANT:
     }
 
     const data = await response.json();
-    const evaluation = data.choices[0].message.content;
+    let evaluation = data.choices[0].message.content;
 
-    // Calculate if prize is unlocked
+    // Calculate if prize is unlocked (server-side is source of truth)
     const percentage = score / totalQuestions;
     const prizeUnlocked = percentage >= 0.9;
+
+    // Append the correct verdict based on server calculation
+    evaluation += `\n\n${prizeUnlocked ? '🎁 Geschenk freigeschaltet. Leistung akzeptiert.' : '❌ Geschenk leider nicht freigeschaltet. Das tut beim Zuschauen weh.'}`;
 
     return NextResponse.json({ evaluation, prizeUnlocked });
   } catch (error) {

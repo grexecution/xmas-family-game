@@ -48,18 +48,18 @@ const getQuestions = (family: Family): Question[] => {
         mapWidth: 960,
         mapHeight: 536,
         correctPoint: { x: 870, y: 310 },
-        threshold: 90,
+        threshold: 150,
       }
     : {
         id: 1,
         type: "pin",
         category: "Austria",
-        question: "Tippe auf die Karte: Wo liegt ungefähr Salzburg – und noch genauer: Anif?",
+        question: "Tippe auf die Karte: Wo liegt ungefähr Anif?",
         mapUrl: "/austria-map.png",
         mapWidth: 960,
         mapHeight: 536,
         correctPoint: { x: 210, y: 200 },
-        threshold: 100,
+        threshold: 150,
       };
 
   return [
@@ -94,7 +94,7 @@ const getQuestions = (family: Family): Question[] => {
       mapWidth: 960,
       mapHeight: 536,
       correctPoint: { x: 250, y: 230 },
-      threshold: 90,
+      threshold: 150,
     },
     {
       id: 5,
@@ -113,14 +113,14 @@ const getQuestions = (family: Family): Question[] => {
       id: 6,
       type: "mc",
       category: "Fun",
-      question: "Warum heißt der Ort früher 'Fucking' heute anders?",
+      question: "Was ist die traditionelle Weihnachtsbescherung in Österreich?",
       options: [
-        "Wegen EU-Vorschriften",
-        "Wegen internationaler Witze und Ortstafeldiebstähle",
-        "Wegen politischer Proteste",
-        "Wegen eines Übersetzungsfehlers",
+        "24. Dezember am Abend",
+        "25. Dezember am Morgen",
+        "6. Dezember (Nikolaus)",
+        "1. Januar (Neujahr)",
       ],
-      correctIndex: 1,
+      correctIndex: 0,
     },
     {
       id: 7,
@@ -245,7 +245,7 @@ const getQuestions = (family: Family): Question[] => {
       mapWidth: 960,
       mapHeight: 536,
       correctPoint: { x: 420, y: 185 },
-      threshold: 80,
+      threshold: 150,
     },
   ];
 };
@@ -255,7 +255,6 @@ type Screen =
   | "quiz"
   | "ai-evaluation"
   | "answer-review"
-  | "prize-unlocked"
   | "prize-reveal";
 
 type AnswerResult = {
@@ -680,22 +679,20 @@ export default function Home() {
 
         {currentQuestion.type === "pin" && (
           <div>
-            <div className="map-container">
+            <div className="map-container" style={{ position: 'relative' }}>
               <img
                 ref={imgRef}
                 src={currentQuestion.mapUrl}
                 alt="Austria Map"
-                width={currentQuestion.mapWidth}
-                height={currentQuestion.mapHeight}
                 onClick={handleImageClick}
-                style={{ cursor: "crosshair", display: "block" }}
+                style={{ cursor: "crosshair", display: "block", width: '100%', height: 'auto' }}
               />
-              {pinPoint && (
+              {pinPoint && imgRef.current && (
                 <div
                   className="pin-marker-overlay"
                   style={{
-                    left: `${(pinPoint.x / currentQuestion.mapWidth) * 100}%`,
-                    top: `${(pinPoint.y / currentQuestion.mapHeight) * 100}%`,
+                    left: `${(pinPoint.x / imgRef.current.naturalWidth) * 100}%`,
+                    top: `${(pinPoint.y / imgRef.current.naturalHeight) * 100}%`,
                   }}
                 />
               )}
@@ -745,9 +742,9 @@ export default function Home() {
             {prizeUnlocked ? (
               <button
                 className="btn-primary"
-                onClick={() => setScreen("prize-unlocked")}
+                onClick={() => setScreen("prize-reveal")}
               >
-                Geschenk abholen
+                Geschenk ansehen
               </button>
             ) : (
               <button className="btn-primary" onClick={resetQuiz}>
@@ -824,36 +821,22 @@ export default function Home() {
     );
   }
 
-  // Prize unlocked screen
-  if (screen === "prize-unlocked") {
-    return (
-      <div className="container">
-        <div className="prize-text">
-          Geschafft.
-          {"\n"}Ihr habt das Geschenk freigeschaltet.
-        </div>
-        <button
-          className="btn-primary"
-          onClick={() => setScreen("prize-reveal")}
-        >
-          Open Prize
-        </button>
-      </div>
-    );
-  }
-
   // Prize reveal screen
   if (screen === "prize-reveal") {
     return (
       <div className="container">
+        <h1 style={{ marginBottom: '24px' }}>🎁 Euer Geschenk 🎁</h1>
         <div className="prize-text">
-          Euer Geschenk:
-          {"\n\n"}🎬 1 Jahr Curiosity Stream
-          {"\n"}Dokumentationen & Geschichte
-          {"\n\n"}Der Gutschein wird euch automatisch am 25.12. zugestellt.
+          🎬 1 Jahr Curiosity Stream Premium
+          {"\n\n"}
+          Tausende Dokumentationen über Geschichte, Wissenschaft, Natur, Technologie und vieles mehr. Streamt auf allen Geräten – ohne Werbung, in HD-Qualität.
+          {"\n\n"}
+          Von historischen Ereignissen bis zu den Geheimnissen des Universums: Entdeckt die Welt mit den besten Dokumentarfilmen und Serien.
+          {"\n\n"}
+          💌 Der Gutscheincode wird euch automatisch am 25.12. per E-Mail zugestellt.
         </div>
         <button className="btn-primary" onClick={resetQuiz}>
-          Done
+          Fertig
         </button>
       </div>
     );
