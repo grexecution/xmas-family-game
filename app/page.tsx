@@ -385,6 +385,13 @@ export default function Home() {
     const userAnswer = currentQuestion.options[optionIndex];
     const correctAnswer = currentQuestion.options[currentQuestion.correctIndex];
 
+    console.log('🎯 Multiple Choice Answer:', {
+      question: currentQuestion.question,
+      userAnswer,
+      correctAnswer,
+      isCorrect: isCorrect ? '✅ CORRECT' : '❌ WRONG'
+    });
+
     setAnswers([...answers, {
       question: currentQuestion.question,
       userAnswer,
@@ -416,6 +423,13 @@ export default function Home() {
       return `${day}.${month}.${year}`;
     };
 
+    console.log('📅 Date Answer:', {
+      question: currentQuestion.question,
+      userAnswer: formatDate(userDate),
+      correctAnswer: formatDate(currentQuestion.correctISO),
+      isCorrect: isCorrect ? '✅ CORRECT' : '❌ WRONG'
+    });
+
     setAnswers([...answers, {
       question: currentQuestion.question,
       userAnswer: formatDate(userDate),
@@ -444,6 +458,11 @@ export default function Home() {
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
+    console.log('🗺️ Map Click:', {
+      clickedCoordinates: `(${Math.round(x)}, ${Math.round(y)})`,
+      question: currentQuestion.type === 'pin' ? currentQuestion.question : 'N/A'
+    });
+
     setPinPoint({ x, y });
   };
 
@@ -458,10 +477,22 @@ export default function Home() {
 
     const isCorrect = distance <= currentQuestion.threshold;
 
+    console.log('📍 Map Pin Answer:', {
+      question: currentQuestion.question,
+      userClick: `(${Math.round(pinPoint.x)}, ${Math.round(pinPoint.y)})`,
+      correctPoint: `(${currentQuestion.correctPoint.x}, ${currentQuestion.correctPoint.y})`,
+      distance: Math.round(distance),
+      threshold: currentQuestion.threshold,
+      isCorrect: isCorrect ? '✅ CORRECT' : '❌ WRONG'
+    });
+
     setAnswers([...answers, {
       question: currentQuestion.question,
       userAnswer: isCorrect ? "Richtige Region" : "Falsche Region",
-      correctAnswer: "Fugging (Oberösterreich)",
+      correctAnswer: currentQuestion.question.includes("Neudörfl") ? "Neudörfl (Burgenland)" :
+                      currentQuestion.question.includes("Salzburg") ? "Salzburg/Anif" :
+                      currentQuestion.question.includes("Hallstatt") ? "Hallstatt (Oberösterreich)" :
+                      "Fugging (Oberösterreich)",
       isCorrect
     }]);
 
