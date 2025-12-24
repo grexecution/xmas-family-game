@@ -254,6 +254,7 @@ type Screen =
   | "start"
   | "quiz"
   | "ai-evaluation"
+  | "answer-review"
   | "prize-unlocked"
   | "prize-reveal";
 
@@ -728,19 +729,97 @@ export default function Home() {
         </div>
 
         {!loadingEvaluation && (
-          prizeUnlocked ? (
+          <>
             <button
               className="btn-primary"
-              onClick={() => setScreen("prize-unlocked")}
+              onClick={() => setScreen("answer-review")}
+              style={{ marginBottom: '12px' }}
             >
-              Geschenk abholen
+              Antworten überprüfen
             </button>
-          ) : (
-            <button className="btn-primary" onClick={resetQuiz}>
-              Nochmal versuchen
-            </button>
-          )
+            {prizeUnlocked ? (
+              <button
+                className="btn-primary"
+                onClick={() => setScreen("prize-unlocked")}
+              >
+                Geschenk abholen
+              </button>
+            ) : (
+              <button className="btn-primary" onClick={resetQuiz}>
+                Nochmal versuchen
+              </button>
+            )}
+          </>
         )}
+      </div>
+    );
+  }
+
+  // Answer Review screen
+  if (screen === "answer-review") {
+    return (
+      <div className="container">
+        <h2>📋 Antwortübersicht</h2>
+        <div className="result-text" style={{ marginBottom: '20px', fontSize: 'clamp(18px, 4vw, 20px)' }}>
+          {score}/{questions.length} richtig
+        </div>
+
+        <div style={{ maxHeight: '60vh', overflowY: 'auto', marginBottom: '24px' }}>
+          {answers.map((answer, index) => (
+            <div
+              key={index}
+              style={{
+                background: answer.isCorrect
+                  ? 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)'
+                  : 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)',
+                border: answer.isCorrect ? '2px solid #28a745' : '2px solid #dc3545',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '12px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <div style={{
+                fontSize: '14px',
+                fontWeight: '700',
+                color: answer.isCorrect ? '#155724' : '#721c24',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span>{answer.isCorrect ? '✅' : '❌'}</span>
+                <span>Frage {index + 1}</span>
+              </div>
+              <div style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                color: '#2c3e50',
+                marginBottom: '12px',
+                lineHeight: '1.4'
+              }}>
+                {answer.question}
+              </div>
+              <div style={{ fontSize: '14px', color: '#495057' }}>
+                <div style={{ marginBottom: '4px' }}>
+                  <strong>Deine Antwort:</strong> {answer.userAnswer}
+                </div>
+                {!answer.isCorrect && (
+                  <div>
+                    <strong>Richtig wäre:</strong> {answer.correctAnswer}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          className="btn-primary"
+          onClick={() => setScreen("ai-evaluation")}
+        >
+          Zurück zur Auswertung
+        </button>
       </div>
     );
   }
