@@ -686,16 +686,35 @@ export default function Home() {
 
   // Prize reveal screen
   if (screen === "prize-reveal") {
+    const isWallner = family === "Wallner Family";
+
     return (
       <div className="container">
-        <div className="prize-text">
-          Euer Geschenk:
-          {"\n"}Ein gemeinsames Dinner – ich reserviere,
-          {"\n"}ihr entscheidet das Datum.
-        </div>
-        <button className="btn-primary" onClick={resetQuiz}>
-          Done
-        </button>
+        {isWallner ? (
+          <>
+            <div className="prize-text">
+              Euer Geschenk:
+              {"\n\n"}🎬 1 Jahr Curiosity Stream
+              {"\n"}Dokumentationen & Geschichte
+              {"\n\n"}Der Gutschein wird euch automatisch am 25.12. zugestellt.
+            </div>
+            <button className="btn-primary" onClick={resetQuiz}>
+              Done
+            </button>
+          </>
+        ) : (
+          <>
+            <h1 style={{ textAlign: 'center', marginBottom: '24px' }}>🎉</h1>
+            <div className="prize-text">
+              Geschafft!
+              {"\n\n"}Ihr habt es erfolgreich durch das Quiz geschafft.
+              {"\n"}Gut gemacht!
+            </div>
+            <button className="btn-primary" onClick={resetQuiz}>
+              Done
+            </button>
+          </>
+        )}
       </div>
     );
   }
