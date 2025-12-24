@@ -192,7 +192,7 @@ body::before {
 }
 
 h1 {
-  font-size: clamp(32px, 7vw, 42px);
+  font-size: clamp(28px, 7vw, 38px);
   margin-bottom: 16px;
   text-align: center;
   background: linear-gradient(135deg, var(--crimson) 0%, var(--gold) 50%, var(--green) 100%);

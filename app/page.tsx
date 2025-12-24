@@ -19,6 +19,7 @@ type DateQuestion = {
   question: string;
   correctISO: string;
   yearRange: { from: number; to: number };
+  dayRequired?: boolean;
 };
 
 type PinQuestion = {
@@ -137,9 +138,10 @@ const getQuestions = (family: Family): Question[] => {
       id: 7,
       type: "date",
       category: "History",
-      question: "Wann wurde der Österreichische Staatsvertrag unterzeichnet? (Datum auswählen)",
-      correctISO: "1955-05-15",
+      question: "Wann wurde der Österreichische Staatsvertrag unterzeichnet? (Monat und Jahr)",
+      correctISO: "1955-05",
       yearRange: { from: 1950, to: 1960 },
+      dayRequired: false,
     },
     {
       id: 8,
@@ -242,7 +244,7 @@ const getQuestions = (family: Family): Question[] => {
       category: "Music",
       question: "Weihnachts-Emoji-Rätsel: 🚗🏠🎄",
       hint: "Beliebter Weihnachtssong",
-      correctAnswers: ["Driving Home for Christmas", "Driving Home For Christmas", "driving home for christmas"],
+      correctAnswers: ["Driving Home for Christmas", "Driving Home For Christmas", "driving home for christmas", "Driving home for christmas"],
       caseSensitive: false,
     },
     {
@@ -266,6 +268,7 @@ const getQuestions = (family: Family): Question[] => {
 
 type Screen =
   | "start"
+  | "reaction-test"
   | "quiz"
   | "ai-evaluation"
   | "answer-review"
@@ -305,6 +308,15 @@ export default function Home() {
   const [textAnswer, setTextAnswer] = useState<string>("");
   const [showImageModal, setShowImageModal] = useState<boolean>(false);
 
+  // Reaction test state
+  const [currentEmoji, setCurrentEmoji] = useState<string>("");
+  const [reactionScore, setReactionScore] = useState<number>(0);
+  const [showEmoji, setShowEmoji] = useState<boolean>(false);
+  const [reactionMessage, setReactionMessage] = useState<string>("");
+  const [canClick, setCanClick] = useState<boolean>(false);
+  const [testRunning, setTestRunning] = useState<boolean>(false);
+  const reactionTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const questions = family ? getQuestions(family) : [];
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -328,6 +340,15 @@ export default function Home() {
     const interval = setInterval(createSnowflake, 300);
     return () => clearInterval(interval);
   }, []);
+
+  // Cleanup reaction test timer on unmount or screen change
+  useEffect(() => {
+    return () => {
+      if (reactionTimerRef.current) {
+        clearTimeout(reactionTimerRef.current);
+      }
+    };
+  }, [screen]);
 
   // Fetch AI evaluation when screen changes to ai-evaluation
   useEffect(() => {
@@ -428,11 +449,86 @@ export default function Home() {
     setPinPoint(null);
     setTextAnswer("");
     setShowImageModal(false);
+    setReactionScore(0);
+    setCurrentEmoji("");
+    setShowEmoji(false);
+    setReactionMessage("");
+    setCanClick(false);
+    setTestRunning(false);
+    if (reactionTimerRef.current) {
+      clearTimeout(reactionTimerRef.current);
+    }
   };
 
   const selectFamily = (selectedFamily: Family) => {
     setFamily(selectedFamily);
     setScreen("quiz");
+  };
+
+  // Reaction test functions
+  const startReactionTest = () => {
+    setReactionScore(0);
+    setReactionMessage("");
+    setTestRunning(true);
+    setTimeout(() => showNextEmoji(), 800);
+  };
+
+  const showNextEmoji = () => {
+    const emojis = ["🍺", "🍷", "☕", "🥤", "🎅", "⛄", "🎁", "🎄"];
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+
+    setCurrentEmoji(randomEmoji);
+    setShowEmoji(true);
+    setReactionMessage("");
+    setCanClick(true);
+
+    const isTree = randomEmoji === "🎄";
+    const displayTime = isTree ? 500 : 800; // Faster!
+
+    // Clear any existing timer
+    if (reactionTimerRef.current) {
+      clearTimeout(reactionTimerRef.current);
+    }
+
+    // Auto-hide emoji after displayTime
+    reactionTimerRef.current = setTimeout(() => {
+      if (isTree && canClick) {
+        // User missed the tree!
+        setReactionMessage("❌ Zu langsam! Versuch's nochmal.");
+        setReactionScore(0);
+      }
+      setShowEmoji(false);
+      setCanClick(false);
+
+      // Show next emoji immediately - no delay!
+      setTimeout(() => showNextEmoji(), 100);
+    }, displayTime);
+  };
+
+  const handleEmojiClick = () => {
+    if (!canClick || !showEmoji) return;
+
+    setCanClick(false);
+    setShowEmoji(false);
+
+    if (reactionTimerRef.current) {
+      clearTimeout(reactionTimerRef.current);
+    }
+
+    if (currentEmoji === "🎄") {
+      // Correct! Clicked on tree - immediately pass!
+      setReactionScore(1);
+      setReactionMessage("✅ Geschafft! Nüchtern genug für die Auswertung!");
+      setTimeout(() => setScreen("ai-evaluation"), 2000);
+    } else {
+      // Wrong! Clicked on wrong emoji
+      setReactionMessage(`❌ Falsch! Das war kein Baum. Versuch's nochmal!`);
+      setReactionScore(0);
+      setTimeout(() => {
+        setReactionMessage("");
+        showNextEmoji();
+      }, 800);
+    }
   };
 
   const handleMCAnswer = (optionIndex: number) => {
@@ -465,19 +561,30 @@ export default function Home() {
 
   const handleDateSubmit = () => {
     if (currentQuestion.type !== "date") return;
-    if (
-      selectedDay === null ||
-      selectedMonth === null ||
-      selectedYear === null
-    )
-      return;
 
-    const userDate = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`;
+    const dayRequired = currentQuestion.dayRequired !== false; // default to true
+
+    if (dayRequired) {
+      if (selectedDay === null || selectedMonth === null || selectedYear === null) return;
+    } else {
+      if (selectedMonth === null || selectedYear === null) return;
+    }
+
+    const userDate = dayRequired
+      ? `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`
+      : `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`;
+
     const isCorrect = userDate === currentQuestion.correctISO;
 
     const formatDate = (dateStr: string) => {
-      const [year, month, day] = dateStr.split('-');
-      return `${day}.${month}.${year}`;
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const [year, month, day] = parts;
+        return `${day}.${month}.${year}`;
+      } else {
+        const [year, month] = parts;
+        return `${month}.${year}`;
+      }
     };
 
     console.log('📅 Date Answer:', {
@@ -610,7 +717,7 @@ export default function Home() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      setScreen("ai-evaluation");
+      setScreen("reaction-test");
     }
   };
 
@@ -662,6 +769,123 @@ export default function Home() {
     );
   }
 
+  // Reaction test screen
+  if (screen === "reaction-test") {
+    return (
+      <div className="container">
+        <h1>🍺 Finale Herausforderung 🍺</h1>
+        <h2>Reaktions-Alkoholtest</h2>
+        <p style={{
+          textAlign: 'center',
+          fontSize: 'clamp(14px, 3.5vw, 16px)',
+          color: '#5a6c7d',
+          marginBottom: '24px',
+          fontWeight: '600'
+        }}>
+          Klicke NUR auf den Weihnachtsbaum 🎄!
+        </p>
+
+        <div style={{
+          textAlign: 'center',
+          margin: '32px 0',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          gap: '24px'
+        }}>
+          {/* Emoji Display - Always rendered to prevent layout shift */}
+          <div
+            onClick={handleEmojiClick}
+            style={{
+              fontSize: 'clamp(120px, 30vw, 180px)',
+              cursor: showEmoji ? 'pointer' : 'default',
+              animation: showEmoji ? 'pulse 0.3s ease-in-out' : 'none',
+              userSelect: 'none',
+              filter: showEmoji ? 'drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2))' : 'none',
+              transition: 'transform 0.15s ease, opacity 0.2s ease',
+              height: 'clamp(120px, 30vw, 180px)',
+              width: 'clamp(120px, 30vw, 180px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: showEmoji ? 1 : 0,
+              pointerEvents: showEmoji ? 'auto' : 'none'
+            }}
+            onMouseEnter={(e) => {
+              if (showEmoji) e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              if (showEmoji) e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            {showEmoji ? currentEmoji : ''}
+          </div>
+
+          {/* Message Display - Always rendered */}
+          <div style={{
+            fontSize: 'clamp(16px, 4vw, 19px)',
+            fontWeight: '600',
+            color: reactionMessage.includes('✅') ? '#228B22' : reactionMessage.includes('🎄') ? '#DC143C' : '#E74C3C',
+            padding: '16px 24px',
+            background: reactionMessage.includes('✅')
+              ? 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)'
+              : 'linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(220, 20, 60, 0.08))',
+            borderRadius: '14px',
+            border: `2px solid ${reactionMessage.includes('✅') ? '#28a745' : 'rgba(220, 20, 60, 0.3)'}`,
+            boxShadow: reactionMessage ? '0 4px 16px rgba(0, 0, 0, 0.12)' : 'none',
+            maxWidth: '400px',
+            width: '100%',
+            textAlign: 'center',
+            minHeight: '58px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: reactionMessage ? 1 : 0,
+            visibility: reactionMessage ? 'visible' : 'hidden',
+            transition: 'opacity 0.3s ease'
+          }}>
+            {reactionMessage || 'Placeholder'}
+          </div>
+
+          {/* Start Button - Always rendered */}
+          <div style={{
+            minHeight: '60px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%'
+          }}>
+            {!testRunning && (
+              <button
+                className="btn-primary"
+                onClick={startReactionTest}
+                style={{ fontSize: 'clamp(16px, 4vw, 18px)' }}
+              >
+                🎯 Test Starten
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div style={{
+          fontSize: 'clamp(13px, 3.5vw, 15px)',
+          color: '#5a6c7d',
+          textAlign: 'center',
+          padding: '16px',
+          background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(220, 20, 60, 0.04))',
+          borderRadius: '12px',
+          border: '1px solid rgba(220, 20, 60, 0.2)',
+          lineHeight: '1.6',
+          fontStyle: 'italic'
+        }}>
+          💡 Tipp: Der Weihnachtsbaum erscheint nur für 0.5 Sekunden!<br />
+          Sei schnell und konzentriert!
+        </div>
+      </div>
+    );
+  }
+
   // Quiz screen
   if (screen === "quiz") {
     return (
@@ -688,19 +912,21 @@ export default function Home() {
         {currentQuestion.type === "date" && (
           <div>
             <div className="date-select">
-              <select
-                value={selectedDay ?? ""}
-                onChange={(e) =>
-                  setSelectedDay(e.target.value ? Number(e.target.value) : null)
-                }
-              >
-                <option value="">Tag</option>
-                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                  <option key={day} value={day}>
-                    {day}
-                  </option>
-                ))}
-              </select>
+              {currentQuestion.dayRequired !== false && (
+                <select
+                  value={selectedDay ?? ""}
+                  onChange={(e) =>
+                    setSelectedDay(e.target.value ? Number(e.target.value) : null)
+                  }
+                >
+                  <option value="">Tag</option>
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              )}
               <select
                 value={selectedMonth ?? ""}
                 onChange={(e) =>
@@ -744,9 +970,9 @@ export default function Home() {
               className="btn-primary"
               onClick={handleDateSubmit}
               disabled={
-                selectedDay === null ||
-                selectedMonth === null ||
-                selectedYear === null
+                currentQuestion.dayRequired !== false
+                  ? (selectedDay === null || selectedMonth === null || selectedYear === null)
+                  : (selectedMonth === null || selectedYear === null)
               }
             >
               Weiter

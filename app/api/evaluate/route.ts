@@ -45,7 +45,7 @@ SPECIAL CASES (follow these EXACTLY):
 
 RULES:
 - First: write a 3–5 sentence sarcastic summary in German
-- If there are wrong answers: Pick ONLY ONE (the most interesting/funny one) and make a specific joke about it
+- If there are wrong answers: Pick ONLY ONE (at random) and make a specific joke about it
 - Do NOT mention all wrong answers, just pick the best one for comedy
 - After that add another sarcastic sentence about the overall performance, fitting to the existing text above with a christmas theme.
 - Then: display four scores from 0–100 (integers):
