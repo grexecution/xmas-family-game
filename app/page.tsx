@@ -620,46 +620,43 @@ export default function Home() {
       <div className="container">
         <h1>🎄 Weihnachts-Quiz 🎄</h1>
         <h2>🎁 Wähle deine Familie 🎁</h2>
-        <div style={{ textAlign: 'center', margin: '24px 0', fontSize: '48px', animation: 'float 3s ease-in-out infinite' }}>
-          ⛄
-        </div>
         <button
           className="btn-primary"
           onClick={() => selectFamily("Matis Family")}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px 20px' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '18px', padding: '18px 24px' }}
         >
           <img
             src="/matis.png"
             alt="Matis Family"
             style={{
-              width: '60px',
-              height: '60px',
+              width: '64px',
+              height: '64px',
               borderRadius: '50%',
               objectFit: 'cover',
-              border: '3px solid rgba(255, 215, 0, 0.8)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+              border: '3.5px solid rgba(255, 215, 0, 0.7)',
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 215, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
             }}
           />
-          <span>Matis Family</span>
+          <span style={{ fontSize: '17px', letterSpacing: '0.5px' }}>Matis Family</span>
         </button>
         <button
           className="btn-primary"
           onClick={() => selectFamily("Wallner Family")}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px 20px' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '18px', padding: '18px 24px' }}
         >
           <img
             src="/wallner.png"
             alt="Wallner Family"
             style={{
-              width: '60px',
-              height: '60px',
+              width: '64px',
+              height: '64px',
               borderRadius: '50%',
               objectFit: 'cover',
-              border: '3px solid rgba(255, 215, 0, 0.8)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+              border: '3.5px solid rgba(255, 215, 0, 0.7)',
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 215, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
             }}
           />
-          <span>Wallner Family</span>
+          <span style={{ fontSize: '17px', letterSpacing: '0.5px' }}>Wallner Family</span>
         </button>
       </div>
     );
@@ -791,14 +788,17 @@ export default function Home() {
           <div>
             {currentQuestion.hint && (
               <div style={{
-                background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(34, 139, 34, 0.1))',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                marginBottom: '20px',
-                fontSize: '14px',
+                background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(34, 139, 34, 0.08))',
+                padding: '14px 18px',
+                borderRadius: '14px',
+                marginBottom: '24px',
+                fontSize: 'clamp(13px, 3.5vw, 15px)',
                 color: '#2c3e50',
                 fontStyle: 'italic',
-                border: '1px solid rgba(255, 215, 0, 0.3)'
+                border: '1.5px solid rgba(255, 215, 0, 0.35)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                fontWeight: '500',
+                letterSpacing: '0.2px'
               }}>
                 💡 Tipp: {currentQuestion.hint}
               </div>
@@ -810,11 +810,21 @@ export default function Home() {
                   onClick={() => setShowImageModal(true)}
                   style={{
                     cursor: 'pointer',
-                    marginBottom: '20px',
-                    border: '3px solid rgba(255, 215, 0, 0.5)',
-                    borderRadius: '16px',
+                    marginBottom: '24px',
+                    border: '3px solid rgba(255, 215, 0, 0.4)',
+                    borderRadius: '18px',
                     overflow: 'hidden',
-                    position: 'relative'
+                    position: 'relative',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15), 0 0 40px rgba(255, 215, 0, 0.1)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.02)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.6)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.4)';
                   }}
                 >
                   <img
@@ -824,14 +834,17 @@ export default function Home() {
                   />
                   <div style={{
                     position: 'absolute',
-                    bottom: '10px',
-                    right: '10px',
-                    background: 'rgba(0,0,0,0.7)',
+                    bottom: '12px',
+                    right: '12px',
+                    background: 'rgba(0,0,0,0.8)',
                     color: 'white',
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    fontWeight: '600'
+                    padding: '8px 14px',
+                    borderRadius: '10px',
+                    fontSize: 'clamp(11px, 3vw, 13px)',
+                    fontWeight: '700',
+                    backdropFilter: 'blur(8px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                    letterSpacing: '0.3px'
                   }}>
                     🔍 Klicken zum Vergrößern
                   </div>
@@ -899,19 +912,29 @@ export default function Home() {
                 }
               }}
               placeholder="Deine Antwort hier eingeben..."
+              onFocus={(e) => {
+                e.target.style.borderColor = 'rgba(220, 20, 60, 0.5)';
+                e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.12), 0 0 0 3px rgba(220, 20, 60, 0.2)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(220, 20, 60, 0.25)';
+                e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
+              }}
               style={{
                 width: '100%',
-                minHeight: '52px',
-                fontSize: '16px',
+                minHeight: 'clamp(50px, 11vw, 56px)',
+                fontSize: 'clamp(15px, 3.5vw, 17px)',
                 fontWeight: '600',
-                padding: '12px 16px',
-                border: '2px solid rgba(220, 20, 60, 0.3)',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #ffffff 0%, #fff5f5 100%)',
+                padding: '14px 18px',
+                border: '2px solid rgba(220, 20, 60, 0.25)',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #ffffff 0%, #fffbfb 100%)',
                 color: '#2c3e50',
-                marginBottom: '20px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-                transition: 'all 0.3s ease'
+                marginBottom: '24px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                outline: 'none',
+                letterSpacing: '0.2px'
               }}
             />
 
@@ -980,93 +1003,101 @@ export default function Home() {
               {scores && (
                 <div style={{ marginBottom: '24px' }}>
                   {/* Intelligenz */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span style={{ fontWeight: '700', color: '#2c3e50' }}>🧠 Intelligenz</span>
-                      <span style={{ fontWeight: '700', color: '#4A90E2' }}>{scores.intelligenz}/100</span>
+                  <div style={{ marginBottom: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: '700', color: '#2c3e50', fontSize: 'clamp(13px, 3.5vw, 15px)' }}>🧠 Intelligenz</span>
+                      <span style={{ fontWeight: '800', color: '#4A90E2', fontSize: 'clamp(13px, 3.5vw, 15px)' }}>{scores.intelligenz}/100</span>
                     </div>
                     <div style={{
-                      height: '24px',
-                      background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
-                      borderRadius: '12px',
+                      height: '28px',
+                      background: 'linear-gradient(135deg, #e8eef5 0%, #f0f4f8 100%)',
+                      borderRadius: '14px',
                       overflow: 'hidden',
-                      border: '2px solid rgba(0,0,0,0.1)'
+                      border: '2px solid rgba(74, 144, 226, 0.15)',
+                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)'
                     }}>
                       <div style={{
                         height: '100%',
                         width: `${scores.intelligenz}%`,
                         background: 'linear-gradient(135deg, #4A90E2 0%, #357ABD 100%)',
                         transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: '0 2px 8px rgba(74, 144, 226, 0.4)'
+                        boxShadow: '0 2px 10px rgba(74, 144, 226, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                        position: 'relative'
                       }} />
                     </div>
                   </div>
 
                   {/* Wissen */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span style={{ fontWeight: '700', color: '#2c3e50' }}>📚 Wissen</span>
-                      <span style={{ fontWeight: '700', color: '#9B59B6' }}>{scores.wissen}/100</span>
+                  <div style={{ marginBottom: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: '700', color: '#2c3e50', fontSize: 'clamp(13px, 3.5vw, 15px)' }}>📚 Wissen</span>
+                      <span style={{ fontWeight: '800', color: '#9B59B6', fontSize: 'clamp(13px, 3.5vw, 15px)' }}>{scores.wissen}/100</span>
                     </div>
                     <div style={{
-                      height: '24px',
-                      background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
-                      borderRadius: '12px',
+                      height: '28px',
+                      background: 'linear-gradient(135deg, #f3eef8 0%, #f8f4fb 100%)',
+                      borderRadius: '14px',
                       overflow: 'hidden',
-                      border: '2px solid rgba(0,0,0,0.1)'
+                      border: '2px solid rgba(155, 89, 182, 0.15)',
+                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)'
                     }}>
                       <div style={{
                         height: '100%',
                         width: `${scores.wissen}%`,
                         background: 'linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%)',
                         transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s',
-                        boxShadow: '0 2px 8px rgba(155, 89, 182, 0.4)'
+                        boxShadow: '0 2px 10px rgba(155, 89, 182, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                        position: 'relative'
                       }} />
                     </div>
                   </div>
 
                   {/* Peinlichkeit */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span style={{ fontWeight: '700', color: '#2c3e50' }}>😳 Peinlichkeit</span>
-                      <span style={{ fontWeight: '700', color: '#E74C3C' }}>{scores.peinlichkeit}/100</span>
+                  <div style={{ marginBottom: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: '700', color: '#2c3e50', fontSize: 'clamp(13px, 3.5vw, 15px)' }}>😳 Peinlichkeit</span>
+                      <span style={{ fontWeight: '800', color: '#E74C3C', fontSize: 'clamp(13px, 3.5vw, 15px)' }}>{scores.peinlichkeit}/100</span>
                     </div>
                     <div style={{
-                      height: '24px',
-                      background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
-                      borderRadius: '12px',
+                      height: '28px',
+                      background: 'linear-gradient(135deg, #fdecea 0%, #fff5f4 100%)',
+                      borderRadius: '14px',
                       overflow: 'hidden',
-                      border: '2px solid rgba(0,0,0,0.1)'
+                      border: '2px solid rgba(231, 76, 60, 0.15)',
+                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)'
                     }}>
                       <div style={{
                         height: '100%',
                         width: `${scores.peinlichkeit}%`,
                         background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
                         transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.4s',
-                        boxShadow: '0 2px 8px rgba(231, 76, 60, 0.4)'
+                        boxShadow: '0 2px 10px rgba(231, 76, 60, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                        position: 'relative'
                       }} />
                     </div>
                   </div>
 
                   {/* Schönheitspunkte */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span style={{ fontWeight: '700', color: '#2c3e50' }}>✨ Schönheitspunkte</span>
-                      <span style={{ fontWeight: '700', color: '#F39C12' }}>{scores.schoenheit}/100</span>
+                  <div style={{ marginBottom: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: '700', color: '#2c3e50', fontSize: 'clamp(13px, 3.5vw, 15px)' }}>✨ Schönheitspunkte</span>
+                      <span style={{ fontWeight: '800', color: '#F39C12', fontSize: 'clamp(13px, 3.5vw, 15px)' }}>{scores.schoenheit}/100</span>
                     </div>
                     <div style={{
-                      height: '24px',
-                      background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
-                      borderRadius: '12px',
+                      height: '28px',
+                      background: 'linear-gradient(135deg, #fef5e7 0%, #fffbf0 100%)',
+                      borderRadius: '14px',
                       overflow: 'hidden',
-                      border: '2px solid rgba(0,0,0,0.1)'
+                      border: '2px solid rgba(243, 156, 18, 0.15)',
+                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)'
                     }}>
                       <div style={{
                         height: '100%',
                         width: `${scores.schoenheit}%`,
                         background: 'linear-gradient(135deg, #F39C12 0%, #E67E22 100%)',
                         transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.6s',
-                        boxShadow: '0 2px 8px rgba(243, 156, 18, 0.4)'
+                        boxShadow: '0 2px 10px rgba(243, 156, 18, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                        position: 'relative'
                       }} />
                     </div>
                   </div>
@@ -1104,12 +1135,14 @@ export default function Home() {
                   onClick={() => setScreen("prize-reveal")}
                   style={{
                     background: 'linear-gradient(135deg, #228B22 0%, #2E8B57 100%)',
-                    borderColor: '#FFD700',
-                    marginBottom: '12px',
-                    fontSize: '18px',
+                    borderColor: 'rgba(255, 215, 0, 0.6)',
+                    borderWidth: '2px',
+                    marginBottom: '14px',
+                    fontSize: 'clamp(17px, 4vw, 19px)',
                     fontWeight: '800',
-                    boxShadow: '0 8px 25px rgba(34, 139, 34, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3)',
-                    animation: 'glow 2s ease-in-out infinite'
+                    boxShadow: '0 10px 32px rgba(34, 139, 34, 0.5), 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 40px rgba(255, 215, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                    animation: 'glow 2s ease-in-out infinite',
+                    letterSpacing: '0.5px'
                   }}
                 >
                   🎁 Geschenk ansehen 🎁
@@ -1118,8 +1151,10 @@ export default function Home() {
                   className="btn-primary"
                   onClick={() => setScreen("answer-review")}
                   style={{
-                    background: 'linear-gradient(135deg, #666 0%, #888 100%)',
-                    fontSize: '14px'
+                    background: 'linear-gradient(135deg, #5a6c7d 0%, #7a8a9a 100%)',
+                    fontSize: 'clamp(14px, 3.5vw, 15px)',
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    boxShadow: '0 6px 20px rgba(90, 108, 125, 0.35), 0 3px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                   }}
                 >
                   Antworten überprüfen
